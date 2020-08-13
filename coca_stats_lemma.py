@@ -57,7 +57,7 @@ def llscorer(items):
 
 	base = [a, b, c, d, a+b, a+c, b+d, c+d, a+b+c+d]
 
-	logs = [Decimal(log(x, 10)) if x > 0 else Decimal(0) for x in base]
+	logs = [Decimal(log(x, 10)) if x >0 else Decimal(0) for x in base]
 	parts = [x*y for x,y in zip(base, logs)]
 	parts = [x*float(y) for x,y in zip(order, parts)]
 
@@ -79,7 +79,11 @@ def preprocess(filename, queue):
 			declined = re.compile("@_")
 			for word in doc:
 				if len(word) == 4: #changed from 3 to 4
-					d.append([word[1], word[3]]) #changed from 0 2 to 1 3
+					try:
+						pos = word[3][1]
+					except:
+						pos = word[3][0]
+					d.append([word[2], pos])  #changed from 1 20 to 2 31
 
 				elif word[0].startswith("##"):
 					d = ["_".join(w).strip() for w in d]
@@ -88,9 +92,8 @@ def preprocess(filename, queue):
 					docs.append(d)
 					d = []
 
-				else:
-					pass
-
+			else:
+				pass
 
 			d = ["_".join(w).strip() for w in d]
 			d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x.endswith("_y") or y.endswith("_y"))]
@@ -121,7 +124,11 @@ def preprocess_wfreq(filename, queue):
 			declined = re.compile("@_")
 			for word in doc:
 				if len(word) == 4: #changed from 3 to 4
-					d.append([word[1], word[3]]) #changed from 0 2 to 1 3
+					try:
+						pos = word[3][1]
+					except:
+						pos = word[3][0]
+					d.append([word[2], pos])
 
 				elif word[0].startswith("##"):
 					d = ["_".join(w).strip() for w in d]
@@ -143,10 +150,14 @@ def preprocess_wfreq(filename, queue):
 
 			queue.put(json.dumps(docs))
 
-		except:
-			print("Error: " + filename)
-
-
+		except UnicodeError as e:
+			offending = e.object[e.start:e.end]
+			print("This file isn't encoded with", e.encoding)
+			print("Illegal bytes:", repr(offending))
+			seen_text = e.object[:e.start]
+			line_no = seent_text.count(b'\n') + 1
+			print("Line number: " + line_no)
+			raise
 
 def listener(queue, filename):
 	f = open(filename, 'w')
@@ -177,17 +188,17 @@ if __name__ == "__main__":
 	for dirpath, dirnames, filenames in os.walk(path_to_coca):
 		files.extend([os.path.join(dirpath, file) for file in filenames])
 
-	if os.path.isfile("_COCA2.txt"):
-		print("A file _COCA2.txt was found in the script's directory.")
+	if os.path.isfile("_COCA2_lemma.txt"):
+		print("A file _COCA2_lemma.txt was found in the script's directory.")
 		print("This could be the preprocessed corpus. In that case, you can skip the preprocessing.")
 		print("Otherwise, this script can delete it and preprocess the corpus.")
-		print("Clean the file _COCA2.txt?")
+		print("Clean the file _COCA2_lemma.txt?")
 		dec = ""
 		while dec.lower() not in set(["y", "n"]):
 			dec = input("[y/N]") or "N"
 
 		if dec.lower() == "y":
-			f = open("_COCA2.txt", 'w+')
+			f = open("_COCA2_lemma.txt", 'w+')
 			f.close()
 
 			manager = Manager()
@@ -195,7 +206,7 @@ if __name__ == "__main__":
 			pool = Pool(4)
 
 			#put listener to work first
-			watcher = pool.apply_async(listener, (queue, "_COCA2.txt"))
+			watcher = pool.apply_async(listener, (queue, "_COCA2_lemma.txt"))
 
 			#fire off workers
 			jobs = []
@@ -215,14 +226,14 @@ if __name__ == "__main__":
 			pass
 
 	else:
-		f = open("_COCA2.txt", 'w+')
+		f = open("_COCA2_lemma.txt", 'w+')
 		f.close()
 		manager = Manager()
 		queue = manager.Queue()
 		pool = Pool(4)
 
 		#put listener to work first
-		watcher = pool.apply_async(listener, (queue, "_COCA2.txt"))
+		watcher = pool.apply_async(listener, (queue, "_COCA2_lemma.txt"))
 
 		#fire off workers
 		jobs = []
@@ -244,17 +255,17 @@ if __name__ == "__main__":
 	for dirpath, dirnames, filenames in os.walk(path_to_coca):
 		files.extend([os.path.join(dirpath, file) for file in filenames])
 
-	if os.path.isfile("_COCA2wfreq.txt"):
-		print("A file _COCA2wfreq.txt was found in the script's directory.")
+	if os.path.isfile("_COCA2wfreq_lemma.txt"):
+		print("A file _COCA2wfreq_lemma.txt was found in the script's directory.")
 		print("This could be the preprocessed corpus. In that case, you can skip the preprocessing.")
 		print("Otherwise, this script can delete it and preprocess the corpus.")
-		print("Clean the file _COCA2.txt?")
+		print("Clean the file _COCA2wfreq_lemma.txt?")
 		dec = ""
 		while dec.lower() not in set(["y", "n"]):
 			dec = input("[y/N]") or "N"
 
 		if dec.lower() == "y":
-			f = open("_COCA2wfreq.txt", 'w+')
+			f = open("_COCA2wfreq_lemma.txt", 'w+')
 			f.close()
 
 			manager = Manager()
@@ -262,7 +273,7 @@ if __name__ == "__main__":
 			pool = Pool(4)
 
 			#put listener to work first
-			watcher = pool.apply_async(listener, (queue, "_COCA2wfreq.txt" ))
+			watcher = pool.apply_async(listener, (queue, "_COCA2wfreq_lemma.txt" ))
 
 			#fire off workers
 			jobs = []
@@ -282,14 +293,14 @@ if __name__ == "__main__":
 			pass
 
 	else:
-		f = open("_COCA2wfreq.txt", 'w+')
+		f = open("_COCA2wfreq_lemma.txt", 'w+')
 		f.close()
 		manager = Manager()
 		queue = manager.Queue()
 		pool = Pool(4)
 
 		#put listener to work first
-		watcher = pool.apply_async(listener, (queue, "_COCA2wfreq.txt"))
+		watcher = pool.apply_async(listener, (queue, "_COCA2wfreq_lemma.txt"))
 
 		#fire off workers
 		jobs = []
@@ -310,53 +321,50 @@ if __name__ == "__main__":
 	print("Preprocessing finished")
 	print("Counting scores")
 
-	skip = input("Skip?").lower()
+	print("    Bigram frequency")
+		#- Bigram frequency (bi.freq.NXT)
 
-	if skip == "n":
-		print("    Bigram frequency")
-			#- Bigram frequency (bi.freq.NXT)
+	coca = open("_COCA2_lemma.txt", "r")
+	counter = collections.Counter()
+
+	for line in tqdm.tqdm(coca):
+		bgs = json.loads(line)
+		bgs = [x.strip() for x in bgs if not x.startswith("##")]
+		counter.update(bgs)
+		# print("\n\n\n\nEARLY STOPPING")
+		# break
+
+	coca.close()
+	print("        Cropping the bigram dict to items with freq > 0") #changed 4 to 0
+	counter = {k:v for k,v in counter.items() if v > 0} #changed 4 to 0
+	counter = dict(counter)
+
+	# backup bigram stats file
+	print("        Saving")
+
+	backup_out = open("bigrams_lemma.json", "w+")
+	backup_out.write(json.dumps(counter))
+	backup_out.close()
+
+	print("    Making a wordcount from %i bigrams" % (len(counter)))
+	w_freq = collections.Counter()
+	coca = open("_COCA2wfreq_lemma.txt", "r")
+	for line in tqdm.tqdm(coca):
+		bgs = json.loads(line)
+		bgs = [x.strip() for x in bgs if not x.startswith("##")]
+		w_freq.update(bgs)
+
+	w_freq = dict(w_freq)
+	coca.close()
+
+	backup_out = open("wfreqs_lemma.json", "w+")
+	backup_out.write(json.dumps(w_freq))
+	backup_out.close()
 
 
-		coca = open("_COCA2.txt", "r")
-		counter = collections.Counter()
-
-		for line in tqdm.tqdm(coca):
-			bgs = json.loads(line)
-			bgs = [x.strip() for x in bgs if not x.startswith("##")]
-			counter.update(bgs)
-			# print("\n\n\n\nEARLY STOPPING")
-			# break
-
-		coca.close()
-		print("        Cropping the bigram dict to items with freq > 0") #changed 4 to 0
-		counter = {k:v for k,v in counter.items() if v > 0} #changed 4 to 0
-		counter = dict(counter)
-
-		# backup bigram stats file
-		print("        Saving")
-
-		backup_out = open("bigrams.json", "w+")
-		backup_out.write(json.dumps(counter))
-		backup_out.close()
-
-		print("    Making a wordcount from %i bigrams" % (len(counter)))
-		w_freq = collections.Counter()
-		coca = open("_COCA2wfreq.txt", "r")
-		for line in tqdm.tqdm(coca):
-			bgs = json.loads(line)
-			bgs = [x.strip() for x in bgs if not x.startswith("##")]
-			w_freq.update(bgs)
-
-		w_freq = dict(w_freq)
-		coca.close()
-
-		backup_out = open("wfreqs.json", "w+")
-		backup_out.write(json.dumps(w_freq))
-		backup_out.close()
-
-	with open("bigrams.json", "r") as i:
+	with open("bigrams_lemma.json", "r") as i:
 		counter = json.loads(i.read())
-	with open("wfreqs.json", "r") as i:
+	with open("wfreqs_lemma.json", "r") as i:
 		w_freq = json.loads(i.read())
 
 	w_count = 0
@@ -409,268 +417,257 @@ if __name__ == "__main__":
 
 	print("        Pairs collected")
 
-	if skip == "n":
+	print("        Counting TPD")
+	# Calculates forward probabilities and saves them as a Decimal(probability)
+	# The output variable forward_probs is a dict of dicts, form: {"word_x": {"word_x+1(1)": Decimal(0.73), "word_x+1(2)": Decimal(0.27)}}
+	forward_probs = {}
+	for x_word in tqdm.tqdm(forward_pairs):
+		# total = Decimal(0)
+		# for item in forward_pairs[x_word]:
+			# total += Decimal(forward_pairs[x_word][item])
+		forward_probs[x_word] = {}
+		for item in forward_pairs[x_word]:
+			forward_probs[x_word][item] = float(Decimal(forward_pairs[x_word][item])/w_freq[x_word])
 
-		print("        Counting TPD")
-		# Calculates forward probabilities and saves them as a Decimal(probability)
-		# The output variable forward_probs is a dict of dicts, form: {"word_x": {"word_x+1(1)": Decimal(0.73), "word_x+1(2)": Decimal(0.27)}}
-		forward_probs = {}
-		for x_word in tqdm.tqdm(forward_pairs):
-			# total = Decimal(0)
-			# for item in forward_pairs[x_word]:
-				# total += Decimal(forward_pairs[x_word][item])
-			forward_probs[x_word] = {}
-			for item in forward_pairs[x_word]:
-				forward_probs[x_word][item] = float(Decimal(forward_pairs[x_word][item])/w_freq[x_word])
+	del forward_pairs
 
-		del forward_pairs
+	print("        Counting TPB")
+	# Calculates forward probabilities and saves them as a Decimal(probability)
+	# The output variabe forward_probs is a dict of dicts, form: {"word_x": {"word_x-1(1)": Decimal(0.73), "word_x-1(2)": Decimal(0.27)}}
+	backward_probs = {}
+	for y_word in tqdm.tqdm(backward_pairs):
+		# total = Decimal(0)
+		# for item in backward_pairs[y_word]:
+			# total += Decimal(backward_pairs[y_word][item])
+		backward_probs[y_word] = {}
+		for item in backward_pairs[y_word]:
+			backward_probs[y_word][item] = float(Decimal(backward_pairs[y_word][item])/w_freq[y_word])
 
-		print("        Counting TPB")
-		# Calculates forward probabilities and saves them as a Decimal(probability)
-		# The output variabe forward_probs is a dict of dicts, form: {"word_x": {"word_x-1(1)": Decimal(0.73), "word_x-1(2)": Decimal(0.27)}}
-		backward_probs = {}
-		for y_word in tqdm.tqdm(backward_pairs):
-			# total = Decimal(0)
-			# for item in backward_pairs[y_word]:
-				# total += Decimal(backward_pairs[y_word][item])
-			backward_probs[y_word] = {}
-			for item in backward_pairs[y_word]:
-				backward_probs[y_word][item] = float(Decimal(backward_pairs[y_word][item])/w_freq[y_word])
+	del backward_pairs
 
-		del backward_pairs
+	backup_out = open("fwd_lemma.json", "w+")
+	backup_out.write(json.dumps(forward_probs))
+	backup_out.close()
 
-		backup_out = open("fwd.json", "w+")
-		backup_out.write(json.dumps(forward_probs))
-		backup_out.close()
+	backup_out = open("bckw_lemma.json", "w+")
+	backup_out.write(json.dumps(backward_probs))
+	backup_out.close()
 
-		backup_out = open("bckw.json", "w+")
-		backup_out.write(json.dumps(backward_probs))
-		backup_out.close()
+	print("    MI/MI3")
 
-		print("    MI/MI3")
+	# - Mutual information score (MI.NXT for word i given word i-1; doesn't look beyond!)
+	#log(Bigram_freq/((item1_freq*item2_freq)/WORDCOUNT))
 
-		# - Mutual information score (MI.NXT for word i given word i-1; doesn't look beyond!)
-		#log(Bigram_freq/((item1_freq*item2_freq)/WORDCOUNT))
+	mi_score = {}
+	mi3_score = {}
 
-		mi_score = {}
-		mi3_score = {}
-
-		log10_2 = Decimal(log10(2))	# Do not calculate log10(2) every time around
-		if settings_stats.mi == "BNC" or settings_stats.mi == "BYU":
-			for bigram in tqdm.tqdm(counter):
-
-				try:
-					item1, item2 = bigram.split()
-					item1_freq = Decimal(w_freq[item1])
-					item2_freq = Decimal(w_freq[item2])
-
-				## Used by BNCweb/BYU
-					denom = item1_freq*item2_freq
-					score = Decimal(counter[bigram]*Decimal(w_count))/denom
-					mi_score[bigram] = float(Decimal(log(score,10))/log10_2)
-
-					score3 = Decimal((counter[bigram]**3)*Decimal(w_count))/denom
-					mi3_score[bigram] = float(Decimal(log(score3,10))/log10_2)
-				except ValueError:
-					print("Line 465 ValueError" + bigram)
-
-		else:
-			try:
-				## Based on Wiechmann 2008
-				item1, item2 = bigram.split()
-				item1_freq = Decimal(w_freq[item1])
-				item2_freq = Decimal(w_freq[item2])
-
-				score = Decimal(counter[bigram])/((item1_freq*item2_freq)/Decimal(w_count))
-				mi_score[bigram] = float(score.ln())
-			except ValueError:
-				print("Line 477 ValueError: " + bigram)
-
-		backup_out = open("miscore.json", "w+")
-		backup_out.write(json.dumps(mi_score))
-		backup_out.close()
-		del mi_score
-		backup_out = open("mi3score.json", "w+")
-		backup_out.write(json.dumps(mi3_score))
-		backup_out.close()
-		del mi3_score
-
-		print("    z-score")
-
-		# - Z score
-
-		# prob = Wi-1/(w_count-Wi)
-		# expected = prob * Wi
-		# z-score = bigram-expected/sqrt(expected*(1-prob))
-
-		z_score = {}
-		for bigram in tqdm.tqdm(counter):
-
-			try:
-				item1, item2 = bigram.split()
-				item1_freq = Decimal(w_freq[item1])
-				item2_freq = Decimal(w_freq[item2])
-
-				## Used by BNCweb/BYU
-				prob = item1_freq/Decimal(w_count-item2_freq)		# probability of item1
-				expe = prob*item2_freq								# expected number of bigrams
-				numer = Decimal(counter[bigram])-expe				# deviation from the expected number
-				denom = Decimal(sqrt(expe*(Decimal(1)-prob)))		# std.deviation (kind of)
-				z_score[bigram] = float(numer/denom)
-			except ValueError:
-				print("Line 508 ValueError: " + bigram)
-
-		backup_out = open("zscore.json", "w+")
-		backup_out.write(json.dumps(z_score))
-		backup_out.close()
-		del z_score
-
-		print("    t-score")
-		t_score = {}
-
-		dec_w_count = Decimal(w_count)							# Do not express the word count as a Decimal every time
+	log10_2 = Decimal(log10(2))	# Do not calculate log10(2) every time around
+	if settings_stats.mi == "BNC" or settings_stats.mi == "BYU":
 		for bigram in tqdm.tqdm(counter):
 
 			item1, item2 = bigram.split()
+			item1_freq = Decimal(w_freq[item1])
+			item2_freq = Decimal(w_freq[item2])
 
-			a = Decimal(counter[bigram])
-			b = Decimal(w_freq[item1]) - a
-			c = Decimal(w_freq[item2]) - a
+			## Used by BNCweb/BYU
+			denom = item1_freq*item2_freq
+			score = Decimal(counter[bigram]*Decimal(w_count))/denom
+			mi_score[bigram] = float(Decimal(log(score,10))/log10_2)
 
-			expe = ((a+b)*(a+c))/dec_w_count
+			score3 = Decimal((counter[bigram]**3)*Decimal(w_count))/denom
+			mi3_score[bigram] = float(Decimal(log(score3,10))/log10_2)
 
-			# Based on Gries
-			t_score[bigram]= float((a-expe)/Decimal(sqrt(expe)))
+	else:
+		## Based on Wiechmann 2008
+		item1, item2 = bigram.split()
+		item1_freq = Decimal(w_freq[item1])
+		item2_freq = Decimal(w_freq[item2])
 
-		backup_out = open("tscore.json", "w+")
-		backup_out.write(json.dumps(t_score))
-		backup_out.close()
-		del t_score
+		score = Decimal(counter[bigram])/((item1_freq*item2_freq)/Decimal(w_count))
+		mi_score[bigram] = float(score.ln())
 
-		print("    delta-p-score")
-		delta_p21 = {}
-		delta_p12 = {}
+	backup_out = open("miscore_lemma.json", "w+")
+	backup_out.write(json.dumps(mi_score))
+	backup_out.close()
+	del mi_score
+	backup_out = open("mi3score_lemma.json", "w+")
+	backup_out.write(json.dumps(mi3_score))
+	backup_out.close()
+	del mi3_score
 
-		dec_w_count = Decimal(w_count)							# Do not express the word count as a Decimal every time
-		for bigram in tqdm.tqdm(counter):
+	print("    z-score")
 
-			item1, item2 = bigram.split()
+	# - Z score
 
-			a = Decimal(counter[bigram])
-			b = Decimal(w_freq[item1]) - a
-			c = Decimal(w_freq[item2]) - a
-			d = dec_w_count-a-b-c
+	# prob = Wi-1/(w_count-Wi)
+	# expected = prob * Wi
+	# z-score = bigram-expected/sqrt(expected*(1-prob))
 
-			p1 = Decimal(a)/Decimal(a+b)
-			p2 = Decimal(c)/Decimal(c+d)
+	z_score = {}
+	for bigram in tqdm.tqdm(counter):
 
-			# Based on Gries
-			delta_p21[bigram]= float(p1-p2)
+		item1, item2 = bigram.split()
+		item1_freq = Decimal(w_freq[item1])
+		item2_freq = Decimal(w_freq[item2])
 
-			p1 = Decimal(a)/Decimal(a+c)
-			p2 = Decimal(b)/Decimal(b+d)
+		## Used by BNCweb/BYU
+		prob = item1_freq/Decimal(w_count-item2_freq)		# probability of item1
+		expe = prob*item2_freq								# expected number of bigrams
+		numer = Decimal(counter[bigram])-expe				# deviation from the expected number
+		denom = Decimal(sqrt(expe*(Decimal(1)-prob)))		# std.deviation (kind of)
+		z_score[bigram] = float(numer/denom)
 
-			# Based on Gries
-			delta_p12[bigram]= float(p1-p2)
+	backup_out = open("zscore_lemma.json", "w+")
+	backup_out.write(json.dumps(z_score))
+	backup_out.close()
+	del z_score
 
-		backup_out = open("delta_p21.json", "w+")
-		backup_out.write(json.dumps(delta_p21))
-		backup_out.close()
+	print("    t-score")
+	t_score = {}
 
-		backup_out = open("delta_p12.json", "w+")
-		backup_out.write(json.dumps(delta_p12))
-		backup_out.close()
+	dec_w_count = Decimal(w_count)							# Do not express the word count as a Decimal every time
+	for bigram in tqdm.tqdm(counter):
 
-		del delta_p21
-		del delta_p12
+		item1, item2 = bigram.split()
 
-		print("    Dice-score")
-		# Dice coefficient; using a,b,c,d just like LL
-		# As used in Sketch Engine
-		# dice = (2*bigram)/(w1_freq + w2_freq)
+		a = Decimal(counter[bigram])
+		b = Decimal(w_freq[item1]) - a
+		c = Decimal(w_freq[item2]) - a
 
-		dice_score = {}
-		for bigram in tqdm.tqdm(counter):
+		expe = ((a+b)*(a+c))/dec_w_count
 
-			item1, item2 = bigram.split()
+		# Based on Gries
+		t_score[bigram]= float((a-expe)/Decimal(sqrt(expe)))
 
-			a = Decimal(counter[bigram])
-			b = Decimal(w_freq[item1]) - a
-			c = Decimal(w_freq[item2]) - a
+	backup_out = open("tscore_lemma.json", "w+")
+	backup_out.write(json.dumps(t_score))
+	backup_out.close()
+	del t_score
 
-			score = Decimal(2*a)/(a+b+a+c)
+	print("    delta-p-score")
+	delta_p21 = {}
+	delta_p12 = {}
 
-			dice_score[bigram]= float(score)
+	dec_w_count = Decimal(w_count)							# Do not express the word count as a Decimal every time
+	for bigram in tqdm.tqdm(counter):
 
-		backup_out = open("dicescore.json", "w+")
-		backup_out.write(json.dumps(dice_score))
-		backup_out.close()
-		del dice_score
+		item1, item2 = bigram.split()
 
-		print("    Modified Dice-score")
-		# modified Dice coefficient; using a,b,c,d just like LL
-		# Kitamura, M., and Y. Matsumoto. 1996. Automatic Ex-traction of Word Sequence Correspondences in Par-allel Corpora. In Proc. 4'" Workshop on Very Large Cmpora, 79-87. 4 August, Copenhagen, Denmark.
-		# mod. dice = log2()
+		a = Decimal(counter[bigram])
+		b = Decimal(w_freq[item1]) - a
+		c = Decimal(w_freq[item2]) - a
+		d = dec_w_count-a-b-c
 
-		dice_score = {}
-		for bigram in tqdm.tqdm(counter):
+		p1 = Decimal(a)/Decimal(a+b)
+		p2 = Decimal(c)/Decimal(c+d)
 
-			item1, item2 = bigram.split()
+		# Based on Gries
+		delta_p21[bigram]= float(p1-p2)
 
-			a = Decimal(counter[bigram])
-			b = Decimal(w_freq[item1]) - a
-			c = Decimal(w_freq[item2]) - a
+		p1 = Decimal(a)/Decimal(a+c)
+		p2 = Decimal(b)/Decimal(b+d)
 
-			score = Decimal(2)*(a*a)/(a+b+a+c)
+		# Based on Gries
+		delta_p12[bigram]= float(p1-p2)
 
-			dice_score[bigram]= log(float(score),2)
+	backup_out = open("delta_p21_lemma.json", "w+")
+	backup_out.write(json.dumps(delta_p21))
+	backup_out.close()
 
-		backup_out = open("moddicescore.json", "w+")
-		backup_out.write(json.dumps(dice_score))
-		backup_out.close()
-		del dice_score
+	backup_out = open("delta_p12_lemma.json", "w+")
+	backup_out.write(json.dumps(delta_p12))
+	backup_out.close()
 
-		print("    Log-likelihood")
-		print("        Preparing LL-score calculation")
+	del delta_p21
+	del delta_p12
 
-		lltemp = open("lltemp.bck", "w+")	# We'll use a temp file to save memory
+	print("    Dice-score")
+	# Dice coefficient; using a,b,c,d just like LL
+	# As used in Sketch Engine
+	# dice = (2*bigram)/(w1_freq + w2_freq)
 
-		for bigram in tqdm.tqdm(counter):		# Prepare the inputs and save them to a temp file - allow multiprocessing without straining RAM
-			item1, item2 = bigram.split()
+	dice_score = {}
+	for bigram in tqdm.tqdm(counter):
 
-			a = counter[bigram]
-			b = w_freq[item1] - a
-			c = w_freq[item2] - a
-			d = w_count-a-b-c
+		item1, item2 = bigram.split()
 
-			lltemp.write(json.dumps([bigram, a, b, c, d]) + "\n")
+		a = Decimal(counter[bigram])
+		b = Decimal(w_freq[item1]) - a
+		c = Decimal(w_freq[item2]) - a
 
-		lltemp.close()										# Write access no longer needed
-		lltemp = open("lltemp.bck", "r")					# Open with read access only
-		lt = lltemp.readlines()								# Could be moved to the imap() call, but then the length would be uncertain
+		score = Decimal(2*a)/(a+b+a+c)
 
-		print("        Counting")
-		worker = Pool(4)
-		ll_score = []
-		for i in tqdm.tqdm(worker.imap_unordered(llscorer, lt), total=len(lt)):		# Counting is done on 4 cores, output saved in ll_score
-			ll_score.append(i)
+		dice_score[bigram]= float(score)
 
-		del lt
-		worker.close()
-		worker.join()
+	backup_out = open("dicescore_lemma.json", "w+")
+	backup_out.write(json.dumps(dice_score))
+	backup_out.close()
+	del dice_score
 
-		print("        Dictionarizing and saving")
-		ll_score = dict(ll_score)
-		backup_out = open("llscore.json", "w+")
-		backup_out.write(json.dumps(ll_score))
-		backup_out.close()
-		del ll_score
+	print("    Modified Dice-score")
+	# modified Dice coefficient; using a,b,c,d just like LL
+	# Kitamura, M., and Y. Matsumoto. 1996. Automatic Ex-traction of Word Sequence Correspondences in Par-allel Corpora. In Proc. 4'" Workshop on Very Large Cmpora, 79-87. 4 August, Copenhagen, Denmark.
+	# mod. dice = log2()
 
-		lltemp.close()																# We don't need the connection anymore
-		try:
-			os.remove("lltemp.bck")
-		except:
-			print("Couldn't remove the file lltemp.bck, please do it manually")
+	dice_score = {}
+	for bigram in tqdm.tqdm(counter):
+
+		item1, item2 = bigram.split()
+
+		a = Decimal(counter[bigram])
+		b = Decimal(w_freq[item1]) - a
+		c = Decimal(w_freq[item2]) - a
+
+		score = Decimal(2)*(a*a)/(a+b+a+c)
+
+		dice_score[bigram]= log(float(score),2)
+
+	backup_out = open("moddicescore_lemma.json", "w+")
+	backup_out.write(json.dumps(dice_score))
+	backup_out.close()
+	del dice_score
+
+	print("    Log-likelihood")
+	print("        Preparing LL-score calculation")
+
+	lltemp = open("lltemp.bck", "w+")	# We'll use a temp file to save memory
+
+	for bigram in tqdm.tqdm(counter):		# Prepare the inputs and save them to a temp file - allow multiprocessing without straining RAM
+		item1, item2 = bigram.split()
+
+		a = counter[bigram]
+		b = w_freq[item1] - a
+		c = w_freq[item2] - a
+		d = w_count-a-b-c
+
+		lltemp.write(json.dumps([bigram, a, b, c, d]) + "\n")
+
+	lltemp.close()										# Write access no longer needed
+	lltemp = open("lltemp.bck", "r")					# Open with read access only
+	lt = lltemp.readlines()								# Could be moved to the imap() call, but then the length would be uncertain
+
+	print("        Counting")
+	worker = Pool(4)
+	ll_score = []
+	for i in tqdm.tqdm(worker.imap_unordered(llscorer, lt), total=len(lt)):		# Counting is done on 4 cores, output saved in ll_score
+		ll_score.append(i)
+
+	del lt
+	worker.close()
+	worker.join()
+
+	print("        Dictionarizing and saving")
+	ll_score = dict(ll_score)
+	backup_out = open("llscore_lemma.json", "w+")
+	backup_out.write(json.dumps(ll_score))
+	backup_out.close()
+	del ll_score
+
+	lltemp.close()																# We don't need the connection anymore
+	try:
+		os.remove("lltemp.bck")
+	except:
+		print("Couldn't remove the file lltemp.bck, please do it manually")
 	print("    G-score")
 
 		# - Lexical gravity G (G.NXT)
@@ -678,14 +675,6 @@ if __name__ == "__main__":
 		# log((Fbigr * TypeFreqAfterW1)/Fw1) + log((Fbigr * TypeFreqBeforeW2)/Fw2)
 
 	# G-score needs the number of types following/preceding an item
-	backup_out = open("fwd.json", "r")
-	forward_probs = json.loads(backup_out.read())
-	backup_out.close()
-
-	backup_out = open("bckw.json", "r")
-	backward_probs = json.loads(backup_out.read())
-	backup_out.close()
-
 	fwd_types = {}
 	for item in forward_probs:
 		fwd_types[item] = len(forward_probs[item])
@@ -697,8 +686,6 @@ if __name__ == "__main__":
 	gtemp = open("gscoretemp.bck", "w+")						# We'll use a temp file to save memory
 
 	print("        Preparing G-score calculation")
-
-
 	for bigram in tqdm.tqdm(counter):								# The calculation is prepared as a file with JSON-serialized inputs to the llcounter() function
 		item1, item2 = bigram.split()
 		item1_3 = w_freq[item1]
@@ -724,7 +711,7 @@ if __name__ == "__main__":
 	worker.join()
 	print("        Dictionarizing and saving")
 	g_score = dict(g_score)
-	backup_out = open("gscore.json", "w+")
+	backup_out = open("gscore_lemma.json", "w+")
 	backup_out.write(json.dumps(g_score))
 	backup_out.close()
 	del g_score

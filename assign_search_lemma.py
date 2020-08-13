@@ -184,8 +184,8 @@ def getDisbalance(new, old, penalty=3, mod=1):
 	old == old**penalty
 	return(nsum(old))
 
-class Scorer(object):
-	"""Loads all the score lists, can then be used to assign the scores on a per-item base with the score method.
+class ScorerLemma(object):
+	"""Loads all the score lists, can then be used to asign the scores on a per-item base with the score method.
 		It is memory-heavy, but could be included in functions which allow interactive collocation input."""
 
 	def __init__(self):
@@ -194,9 +194,11 @@ class Scorer(object):
 		self.optimizer = "pruning"
 		self.beam_width = 5
 		import os
-		#files = ["wfreqs.json", "bigrams.json","fwd.json","bckw.json","llscore.json", "tscore.json", "miscore.json","mi3score.json"]
-		files = ["wfreqs.json", "bigrams.json","fwd.json","bckw.json","llscore.json", "dicescore.json", "moddicescore.json","tscore.json","zscore.json", "delta_p21.json", "delta_p12.json", "miscore.json","mi3score.json","gscore.json"]
-		files = ["XXXX" for x in files]
+		files = ["wfreqs_lemma.json", "bigrams_lemma.json","fwd_lemma.json","bckw_lemma.json","llscore_lemma.json", "dicescore_lemma.json", "moddicescore_lemma.json","tscore_lemma.json","zscore_lemma.json", "delta_p21_lemma.json", "delta_p12_lemma.json", "miscore_lemma.json","mi3score_lemma.json","gscore_lemma.json"]
+		#files = ["/Users/kylamcconnell/Documents/PhD/Experiment_2019/Stimuli/stimuli/scores2/scores2/"+x for x in files]
+		#file_folder = "E:/stimuli_coca_exp19/scores/"
+		file_folder = "E:/stimuli_coca_exp19/scores/"
+		files = [file_folder +x for x in files]
 		try:
 			filecheck = [os.path.isfile(f) for f in files]
 			if all(filecheck) != True:
@@ -210,72 +212,68 @@ class Scorer(object):
 			print("Exiting")
 			sys.exit(1)
 
-		#try:
-		print("\nLoading the saved scores")
-		print("    unigram frequency")
+		try:
+			print("\nLoading the saved LEMMA scores")
+			print("    unigram frequency")
+			with open(file_folder + "wfreqs_lemma.json", "r") as i:
+				self.wfreq = json.loads(i.read())
 
-		#file_folder = "E:\\stimuli_coca_exp19\\scores\\"
-		file_folder = "E:\\stimuli_coca_exp19\\scores\\"
-		with open(file_folder + "wfreqs.json", "r") as i:
-			self.wfreq = json.loads(i.read())
+			print("    bigram frequency")
+			with open(file_folder + "bigrams_lemma.json", "r") as i:
+				self.bg_frq = json.loads(i.read())
 
-		print("    bigram frequency")
-		with open(file_folder + "bigrams.json", "r") as i:
-			self.bg_frq = json.loads(i.read())
+			print("    TP-D")
+			with open(file_folder + "fwd_lemma.json", "r") as i:
+				self.tp_d = json.loads(i.read())
 
-		print("    TP-D")
-		with open(file_folder + "fwd.json", "r") as i:
-			self.tp_d = json.loads(i.read())
+			print("    TP-B")
+			with open(file_folder + "bckw_lemma.json", "r") as i:
+				self.tp_b = json.loads(i.read())
 
-		print("    TP-B")
-		with open(file_folder + "bckw.json", "r") as i:
-			self.tp_b = json.loads(i.read())
+			print("    Log likelihood")
+			with open(file_folder + "llscore_lemma.json", "r") as i:
+				self.log_lklhd = json.loads(i.read())
 
-		print("    Log likelihood")
-		with open(file_folder + "llscore.json", "r") as i:
-			self.log_lklhd = json.loads(i.read())
+			# print("    Dice")
+			# with open(file_folder + "dicescore_lemma.json", "r") as i:
+			# 	self.dice = json.loads(i.read())
+			#
+			# print("    Modified dice")
+			# with open(file_folder + "moddicescore_lemma.json", "r") as i:
+			# 	self.moddice = json.loads(i.read())
 
-		print("    Dice")
-		with open(file_folder + "dicescore.json", "r") as i:
-			self.dice = json.loads(i.read())
+			print("    t-score")
+			with open(file_folder + "tscore_lemma.json", "r") as i:
+				self.t_score = json.loads(i.read())
 
-		print("    Modified dice")
-		with open(file_folder + "moddicescore.json", "r") as i:
-			self.moddice = json.loads(i.read())
+			# print("    z-score")
+			# with open(file_folder + "zscore_lemma.json", "r") as i:
+			# 	self.z_score = json.loads(i.read())
+			#
+			# print("    delta_p-12")
+			# with open(file_folder + "delta_p12_lemma.json", "r") as i:
+			# 	self.delta_p12 = json.loads(i.read())
+			#
+			# print("    delta_p-21")
+			# with open(file_folder + "delta_p21_lemma.json", "r") as i:
+			# 	self.delta_p21 = json.loads(i.read())
 
-		print("    t-score")
-		with open(file_folder + "tscore.json", "r") as i:
-			self.t_score = json.loads(i.read())
+			print("    MI-score")
+			with open(file_folder + "miscore_lemma.json", "r") as i:
+				self.mi_score = json.loads(i.read())
 
-		print("    z-score")
-		with open(file_folder + "zscore.json", "r") as i:
-			self.z_score = json.loads(i.read())
+			print("    MI3-score")
+			with open(file_folder + "mi3score_lemma.json", "r") as i:
+				self.mi3_score = json.loads(i.read())
 
-		print("    delta_p-12")
-		with open(file_folder + "delta_p12.json", "r") as i:
-			self.delta_p12 = json.loads(i.read())
+			# print("    G-score")
+			# with open(file_folder + "gscore_lemma.json", "r") as i:
+			# 	self.g_score = json.loads(i.read())
+			print("_________________________________")
 
-		print("    delta_p-21")
-		with open(file_folder + "delta_p21.json", "r") as i:
-			self.delta_p21 = json.loads(i.read())
-
-		print("    MI-score")
-		with open(file_folder + "miscore.json", "r") as i:
-			self.mi_score = json.loads(i.read())
-
-		print("    MI3-score")
-		with open(file_folder + "mi3score.json", "r") as i:
-			self.mi3_score = json.loads(i.read())
-
-		print("    G-score")
-		with open(file_folder + "gscore.json", "r") as i:
-			self.g_score = json.loads(i.read())
-		print("_________________________________")
-
-		except Exception as e:
+		except:
 			print("Not all score files could be loaded. Check that they are in the same folder as this script.")
 			print("Exiting")
-		 	print(e)
 			sys.exit(1)
 
 	def score(self, items):
@@ -283,9 +281,9 @@ class Scorer(object):
 		[item1, item2]. If a bigram is not in the score list, return NA."""
 
 		items_out = []
-		print(items)
+
 		for bigram in items:
-			print(bigram)
+			#print("test " +str(bigram))
 
 			w1, w2 = bigram
 			bigram = " ".join(bigram)
@@ -366,8 +364,6 @@ class Scorer(object):
 				delta_p21 = "NA"
 
 			items_out.append([bigram, w1_frq, w2_frq, bg_frq, tp_b, tp_d, log_lklhd, dice, moddice, t_score, z_score, mi_score, mi3_score, g_score, delta_p12, delta_p21])
-			#items_out.append([bigram, w1_frq, w2_frq, bg_frq, tp_b, tp_d, log_lklhd, t_score, mi_score, mi3_score])
-			#items_out.append([bigram, w1_frq, w2_frq, bg_frq])
 
 		return(items_out)
 
@@ -463,18 +459,17 @@ class Scorer(object):
 		print("\nFinishing initialization")
 		### FILTERING BY POS
 
-		self.bgs_all = [x.split() for x in self.bg_frq if (" ".join(x.split()) in self.bg_frq)]
+		self.bgs_all = [x.split() for x in tqdm.tqdm(self.bg_frq) if (" ".join(x.split()) in self.bg_frq)]
 
 		if (min_bg_freq	> 0) or (max_bg_freq < 100000000):
 			print("    Selecting bigrams by bigram frequency")
-			print("		Window: %.2f - %.2f" %(min_bg_freq, max_bg_freq))
-			self.bgs = [[x,y] for x,y in self.bgs_all if (self.bg_frq[" ".join([x,y])] >= min_bg_freq) and (self.bg_frq[" ".join([x,y])] <= max_bg_freq)]
+			self.bgs = [[x,y] for x,y in tqdm.tqdm(self.bgs_all) if (self.bg_frq[" ".join([x,y])] > min_bg_freq) and (self.bg_frq[" ".join([x,y])] < max_bg_freq)]
 		else:
 			self.bgs = self.bgs_all
 
 		if min_uni_freq > 1:
 			print("    Selecting bigrams by unigram frequency")
-			self.bgs = [[x,y] for x,y in self.bgs if (self.wfreq[x]>=min_uni_freq and self.wfreq[y]>=min_uni_freq)]
+			self.bgs = [[x,y] for x,y in tqdm.tqdm(self.bgs) if (self.wfreq[x]>=min_uni_freq and self.wfreq[y]>=min_uni_freq)]
 		else:
 			self.bgs = self.bgs
 
@@ -483,14 +478,14 @@ class Scorer(object):
 			pos_1 = compile(pos_1)
 			pos_2 = compile(pos_2)
 			print("    Selecting bigrams by POS")
-			self.bgs = [[x,y] for x,y in self.bgs if (match(pos_1, x.split("_")[1])!=None and match(pos_2,y.split("_")[1])!=None)]
+			self.bgs = [[x,y] for x,y in tqdm.tqdm(self.bgs) if (match(pos_1, x.split("_")[1])!=None and match(pos_2,y.split("_")[1])!=None)]
 
 		if words[0] != "" or words[1] != "":
 			w_1, w_2 = words
 			w_1 = compile(w_1)
 			w_2 = compile(w_2)
 			print("    Selecting bigrams by words 1 & 2")
-			self.bgs = [[x,y] for x,y in self.bgs if (match(w_1, x.split("_")[0])!=None and match(w_2,y.split("_")[0])!=None)]
+			self.bgs = [[x,y] for x,y in tqdm.tqdm(self.bgs) if (match(w_1, x.split("_")[0])!=None and match(w_2,y.split("_")[0])!=None)]
 
 		print("_"*10+"\nRelevant bigrams: %i" % len(self.bgs))
 
@@ -525,10 +520,10 @@ class Scorer(object):
 
 		if (len(self.bgs) <= num) and len(self.bgs) > 0:
 			print("Random sampling failed: There are fewer relevant cases than the sample size.")
-			scores = [self.score_one(x) for x in self.bgs]										# remove bigram string to allow numpy operation
-			scores = array([x[1:] for x in scores])
-			results = [[" ".join(self.bgs[x])]+list(scores[x,:]) for x in range(min(len(self.bgs), num))]
-			# results = [[sub("_[^ ]+",""," ".join(self.bgs[x]))]+list(scores[x,:]) for x in range(min(len(self.bgs), num))]
+			scores = [self.score(x) for x in self.bgs]										# remove bigram string to allow numpy operation
+			scores = [array([x[1:] for x in y]) for y in scores]
+			results = [[sub("_[^ ]+",""," ".join(self.bgs[x]))]+list(scores[x,:]) for x in range(min(len(self.bgs), num))]
+
 			return(results)
 
 		elif len(self.bgs) == 0:
@@ -600,9 +595,9 @@ class Scorer(object):
 			lasttime = time.time()
 
 			max_time = max_time*60
-			# pbar = [tqdm.tqdm(total = num), tqdm.tqdm(total=num*(buf-1))]
-			# pbar[0].set_description("Stimuli collected")
-			# pbar[1].set_description("Additional buffer")
+			pbar = [tqdm.tqdm(total = num), tqdm.tqdm(total=num*(buf-1))]
+			pbar[0].set_description("Stimuli collected")
+			pbar[1].set_description("Additional buffer")
 			reached = False
 
 			while (self.populated < num*buf) and (time.time() - start) < max_time:				#	Get a random item; check which bins would it increase for which score, if this disturbs balance, drop otherwise insert at the bottom
@@ -641,13 +636,13 @@ class Scorer(object):
 					self.dist[arange(15), item] += 1
 				self.items += samples[best]
 				self.populated += 10
-				# if reached:
-				# 	pbar[1].update(10)
-				# else:
-				# 	pbar[0].update(10)
+				if reached:
+					pbar[1].update(10)
+				else:
+					pbar[0].update(10)
 
-			# pbar[0].close()
-			# pbar[1].close()
+			pbar[0].close()
+			pbar[1].close()
 
 			if self.populated >= num and (time.time() - start) < max_time:
 				print("\nPruning")
@@ -673,7 +668,7 @@ class Scorer(object):
 				firsts = set()
 				seconds = set()
 				dels = []
-				for x in [y for y in range(self.populated)]:
+				for x in tqdm.tqdm([y for y in range(self.populated)]):
 					w1,w2 = self.items[x]
 					if w1 in firsts or w2 in seconds:
 						dels.append(x)
@@ -688,7 +683,7 @@ class Scorer(object):
 				self.results = delete(self.results, dels, 0)
 				self.populated -= len(dels)
 
-				# pbar = tqdm.tqdm(total=self.populated - num)
+				pbar = tqdm.tqdm(total=self.populated - num)
 				while self.populated > num and (time.time() - start) < max_time:			# If there is time left, prune the most problematic items away, one by one
 					rands = [random.randint(0,binned.shape[0]-1) for x in range(1000)]
 					performance = [getDisbalance(binned[i,:], self.dist, self.disbalance_penalty, mod=-1) for i in rands]
@@ -698,7 +693,7 @@ class Scorer(object):
 					del self.items[best]
 					self.results = delete(self.results, best, 0)
 					self.populated -= 1
-					# pbar.update(1)
+					pbar.update(1)
 
 				print("\nSuccess! All %i items were found." % num)
 
@@ -738,8 +733,8 @@ class Scorer(object):
 			tiebreak = 1
 			best_sample = []
 
-			# pbar = tqdm.tqdm(total = beam)
-			# pbar.set_description("Samples tried")
+			pbar = tqdm.tqdm(total = beam)
+			pbar.set_description("Samples tried")
 			for sample in range(beam):
 				sample = list(nrandom.choice([x for x in range(len(self.bgs))], min(floor(num*1.1), len(self.bgs)), replace=False))
 				sample = [self.bgs[x] for x in sample]
@@ -757,11 +752,11 @@ class Scorer(object):
 					best_sample = sample
 					tiebreak = tiebreaker
 
-				# pbar.update(1)
+				pbar.update(1)
 				if (time.time() - start) >= max_time:
 					break
 
-			# pbar.close()
+			pbar.close()
 
 			# print(best_sample)
 			if (time.time() - start) < max_time:
@@ -769,7 +764,7 @@ class Scorer(object):
 				firsts = set()
 				seconds = set()
 				dels = []
-				for x in [y for y in range(len(best_sample))]:
+				for x in tqdm.tqdm([y for y in range(len(best_sample))]):
 					w1,w2 = best_sample[x]
 					if w1 in firsts or w2 in seconds:
 						dels.append(x)
@@ -794,8 +789,8 @@ class Scorer(object):
 			#plt.show()
 
 			results = self.score(best_sample)
-			results = pd.DataFrame(results, columns = ["bigram",  "w1_freq", "w2_freq", "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])
-			# results["bigram"] = [sub("_[^ ]+","",x) for x in results["bigram"]]
+			results = pd.DataFrame(results, columns = ["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
+			results["bigram_lemma"] = [sub("_[^ ]+","",x) for x in results["bigram_lemma"]]
 			results = results.values
 			# print(results)
 			return(results)
@@ -816,7 +811,6 @@ if __name__ == "__main__":
 			with open(inpath, "r") as infile:
 				items = infile.readlines()
 				items = [x.split() for x in items]
-				print("First read in items: " + str(items))
 				if all([len(x)==2 for x in items]) == False:
 					raise IOError()
 
@@ -829,98 +823,13 @@ if __name__ == "__main__":
 
 		# Check the RAM installed and available, if sufficient use the default scorer, otherwise use the lite version
 		if ram_present > 7 and ram_available > 5:
-			pass
+			scorer = ScorerLemma()
 		else:
 			print("This is a RAM-intensive operation. You need at least 6 GB of free RAM.")
 			print("Exiting...")
 			sys.exit(0)
 
-		from assign_search_lemma import ScorerLemma
-		with open("E:/stimuli_coca_exp19/mapping.json", "r") as f:
-			mapping = json.load(f)
-			tagger = {sub("_[^ ]+", "", k):k for k in mapping}
-			# mapping = {sub("_[^ ]+", "", k):v for k,v in mapping.items()}
-
-		if match("[^_]+_", " ".join(items[0])) == None:
-			new_items = []
-			for x in items:
-				try:
-					new_items.append(tagger[" ".join(x)].split())
-				except:
-					print("Error: " + str(x))
-
-					# if match("[^_]+_", " ".join(items[0])) == None:
-					# 	try:
-					# 		items = [tagger[" ".join(x)].split() for x in items]
-					# 	except KeyError:
-					# 		print("test")
-
-		items = new_items
-		#print("Second step items: " + str(items))
-		scorer = Scorer()
 		items = scorer.score(items)
-		#print("Third step items: " + str(items))
-
-		#scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq",  "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])
-		#scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq", "bigram_freq", "tp_b", "tp_d", "log_lklhd", "t_score", "mi_score", "mi3_score"])
-		scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq", "bigram_freq"])
-
-		del scorer
-		del items
-		#
-		# for x in scores["bigram"]:
-		# 	try:
-		# 		scores["bigram_lemma"] = mapping[x]
-		# 	except KeyError:
-		# 		print("KeyError line 864: " + x)
-
-		tagged_items = []
-
-		with open(inpath, "r") as infile:
-			items = scores["bigram"]
-			#items = infile.readlines()
-			items = [x.split() for x in items]
-			#print("items: " + str(items))
-			for w1, w2 in items:
-				#print(str(w2))
-				w1 = sub("_[a-z0-9@%]+", "", w1)
-				if "nn2" in w2:
-					if w2 != "approaches_nn2vvz":
-						w2 = sub("s?_[a-z0-9@%]+", "", w2)
-					else:
-						w2 = sub("es?_[a-z0-9@%]+", "", w2)
-				else:
-					w2 = sub("_[a-z0-9@%]+", "", w2)
-				#print(str(w2))
-				if w1 != "further":
-					tagged_w1 = w1 + "_j"
-				else:
-					tagged_w1 = w1 + "_r"
-				tagged_w2 = w2 + "_n"
-				tagged_items.append(str(tagged_w1 + " " + tagged_w2))
-		#print(tagged_items)
-		scores["bigram_lemma"] = tagged_items
-
-
-		scorer = ScorerLemma()
-		lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
-		#lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "t_score_lemma", "mi_score_lemma", "mi3_score_lemma"])
-		lemmascores.drop_duplicates().reset_index(drop=True)
-		lemmascores["bigram_lemma"] = lemmascores["bigram_lemma"].astype(str)
-
-		#print(scores)
-		#print(lemmascores)
-
-		scores = scores.merge(lemmascores, on="bigram_lemma", how="outer")
-		scores.drop_duplicates().reset_index(drop=True)
-
-		#print(scores)
-
-		scores["bigram_tag"] = scores["bigram"]
-		scores["bigram_lemma_tag"] = scores["bigram_lemma"]
-		scores["bigram"] = [sub("_[^ ]+","",x) for x in scores["bigram"]]
-		scores["bigram_lemma"] = [sub("_[^ ]+","",x) for x in scores["bigram_lemma"]]
-		print("Saving")
 
 		if len(sys.argv) > 2:
 			outpath = sys.argv[2]
@@ -928,7 +837,11 @@ if __name__ == "__main__":
 			outpath = input("Where should the results be saved?\n    ")
 
 		print("Saving")
-		scores.to_csv(outpath, index=False)
+		with open(outpath, "w+") as outfile:
+			out_csv = csv.writer(outfile)
+			out_csv.writerow(["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
+			for i in tqdm.tqdm(items):
+				out_csv.writerow(i)
 		print("Done. Press RETURN to exit")
 		wait = input()
 		sys.exit(0)
@@ -969,24 +882,9 @@ if __name__ == "__main__":
 		else:
 			num, cuts, disbalance_penalty, max_time, pos_1, pos_2, w_1, w_2, min_uni_freq, min_bg_freq, max_bg_freq, seed, optimizer, beam_width = getSettings()
 
-		scorer = Scorer()
+		scorer = ScorerLemma()
 		scorer.optimizer = optimizer
 		items = scorer.get_random(num, cuts=cuts, seed=seed, disbalance_penalty = disbalance_penalty, words=[w_1, w_2], pos=[pos_1, pos_2], max_time=max_time, min_bg_freq=min_bg_freq, max_bg_freq=max_bg_freq, min_uni_freq=min_uni_freq)
-
-		scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq",  "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])
-
-		del scorer
-		del items
-
-		from assign_search_lemma import ScorerLemma
-		with open("E:\\stimuli_coca_exp19\\mapping.json", "r") as f:
-			mapping = json.load(f)
-
-		scores["bigram_lemma"] = [mapping[x] for x in scores["bigram"]]
-		scorer = ScorerLemma()
-		lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
-
-		scores = scores.merge(lemmascores, on=["bigram_lemma"])
 
 		print("Saving")
 
@@ -995,11 +893,15 @@ if __name__ == "__main__":
 		else:
 			outpath = input("Where should the results be saved?\n    ")
 
-
 		print("Saving")
-		scores.to_csv(outpath, index = False)
+		with open(outpath, "w+") as outfile:
+			out_csv = csv.writer(outfile)
+			out_csv.writerow(["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
+			for i in tqdm.tqdm(items):
+				out_csv.writerow(i)
 
 		saveSettings([num, cuts, disbalance_penalty, max_time, pos_1, pos_2, w_1, w_2, min_uni_freq, min_bg_freq, max_bg_freq, seed, optimizer, beam_width])
+
 
 	elif mode.lower() == "strat_search":
 
@@ -1010,7 +912,7 @@ if __name__ == "__main__":
 
 		with open("_temp.csv", "w+") as outfile:
 			out_csv = csv.writer(outfile)
-			out_csv.writerow(["bigram", "w1_freq", "w2_freq",  "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])
+			out_csv.writerow(["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
 
 		ram_present = psutil.virtual_memory()[0] >> 30
 		ram_available = psutil.virtual_memory()[1] >> 30
@@ -1046,7 +948,7 @@ if __name__ == "__main__":
 		else:
 			num, cuts, disbalance_penalty, max_time, pos_1, pos_2, w_1, w_2, min_uni_freq, min_bg_freq, max_bg_freq, seed, optimizer, beam_width = getSettings()
 
-		scorer = Scorer()
+		scorer = ScorerLemma()
 
 		scorer.beam_width = beam_width
 		scorer.binning = "exact"
@@ -1083,17 +985,6 @@ if __name__ == "__main__":
 			ints = sorted(nrandom.choice(range(scores.shape[0]), num, replace=False))
 			scores = scores.iloc[ints,:]
 
-		del scorer
-		from assign_search_lemma import ScorerLemma
-		with open("E:\\stimuli_coca_exp19\\mapping.json", "r") as f:
-			mapping = json.load(f)
-
-		scores["bigram_lemma"] = [mapping[x] for x in scores["bigram"]]
-		scorer = ScorerLemma()
-		lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
-
-		scores = scores.merge(lemmascores, on=["bigram_lemma"])
-
 		scores.to_csv(outpath, index=False)
 		try:
 			os.remove("_temp.csv")
@@ -1117,28 +1008,17 @@ if __name__ == "__main__":
 		except:
 			matchWord = 0
 
-		# try:
-		# 	min_t_score = int(input("What is the lowest accepted t-score?"))
-		# except:
-		# 	min_t_score = -1000000
-		#
-		# try:
-		# 	max_t_score = int(input("What is the highest accepted t-score?"))
-		# except:
-		# 	max_t_score = +1000000
+		try:
+			min_t_score = int(input("What is the lowest accepted t-score?"))
+		except:
+			min_t_score = -1000000
 
 		try:
-			window = float(input("What is the bigram frequency window size?"))
+			max_t_score = int(input("What is the highest accepted t-score?"))
 		except:
-			window = 0
+			max_t_score = +1000000
 
-
-		keys = [x.split()[matchWord] for x in list(stimuli["bigram"].values)]
-		locks = [x for x in list(stimuli["bigram"].values)]
-		locks2 = set([x.split()[1] for x in locks])
-		bgfreqs = [x for x in list(stimuli["bigram_freq"].values)]
-		keys = [x for x in zip(keys, bgfreqs)]
-
+		keys = set([x.split()[matchWord] for x in list(stimuli["bigram"].values)])
 		non_matched = 0 if matchWord==1 else 1
 		forbidden = set([x.split()[non_matched] for x in list(stimuli["bigram"].values)])
 
@@ -1149,7 +1029,7 @@ if __name__ == "__main__":
 
 		with open("_temp.csv", "w+") as outfile:
 			out_csv = csv.writer(outfile)
-			out_csv.writerow(["bigram", "w1_freq", "w2_freq",  "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])
+			out_csv.writerow(["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
 
 		ram_present = psutil.virtual_memory()[0] >> 30
 		ram_available = psutil.virtual_memory()[1] >> 30
@@ -1187,16 +1067,14 @@ if __name__ == "__main__":
 
 		print("\n_____________________\nGrab a coffee...or ten")
 
-		scorer = Scorer()
+		scorer = ScorerLemma()
 		#####
 		# Prefilter the data for only the adjectives?
 		# Prefilter the data by t-score?
 		#####
 
 		print("Pre-filtering the data for\n\t-matched words\n\t-fitting t-score")
-		scorer.bg_frq = {k:v for k,v in tqdm.tqdm(scorer.bg_frq.items()) if (k.split(" ")[matchWord].split("_")[0] in [x[0] for x in keys]) and ((sub("_[^ ]+","",k) not in locks) and (k.split()[1].split("_")[0] not in locks2))}
-		print("	Prefiltered: %i" % len(scorer.bg_frq))
-		# scorer.bg_frq = {k:v for k,v in tqdm.tqdm(scorer.bg_frq.items()) if (k.split(" ")[matchWord].split("_")[0] in keys) and ((scorer.t_score[k] >= min_t_score) and (scorer.t_score[k] <= max_t_score))}
+		scorer.bg_frq = {k:v for k,v in tqdm.tqdm(scorer.bg_frq.items()) if (k.split(" ")[matchWord].split("_")[0] in keys) and ((scorer.t_score[k] >= min_t_score) and (scorer.t_score[k] <= max_t_score))}
 
 		scorer.beam_width = beam_width
 		scorer.binning = "exact"
@@ -1204,24 +1082,20 @@ if __name__ == "__main__":
 
 		iter = 0
 		fails = []
-		for key, freq in tqdm.tqdm(keys):
+		for key in tqdm.tqdm(keys):
 			print(key)
-
 			try:
 				matched_pattern = [w_1, w_2]
 				matched_pattern[matchWord] = key
-				freq = log(freq)
-				print("Window: %.2f - %.2f" % (exp(freq-window*.5), exp(freq+window*.5)))
-
 				items = scorer.get_random(num, cuts=cuts, seed=seed+iter, disbalance_penalty = disbalance_penalty, words=matched_pattern,
-					pos=[pos_1, pos_2], max_time=max_time, min_bg_freq=exp(freq-window*.5), max_bg_freq=exp(freq+window*.5), min_uni_freq=min_uni_freq, percent=95)
-
+					pos=[pos_1, pos_2], max_time=max_time, min_bg_freq=min_bg_freq, max_bg_freq=max_bg_freq, min_uni_freq=min_uni_freq, percent=95)
 				iter +=1
+
 				with open("_temp.csv", "a") as outfile:
 					out_csv = csv.writer(outfile)
 					for i in tqdm.tqdm(items):
 						out_csv.writerow(i)
-			except Exception as e:
+			except:
 				fails.append(key)
 
 		print("Saving")
@@ -1236,47 +1110,16 @@ if __name__ == "__main__":
 			else:
 				scores = scores[~scores["w2"].isin(forbidden)]
 
-			keys_dict = {word[0]:bigram_freq for word, bigram_freq in keys}
-			print(keys_dict)
-			print(scores.head())
-			scores["fordrop"] = scores["bigram_freq"].values
-			for item in keys_dict:
-				center =  keys_dict[item]
-				scores.loc[scores["w1"]==item, "fordrop"] = abs(scores.loc[scores["w1"]==item, "fordrop"] - center)
-			scores.sort_values(by=["fordrop"], inplace=True, ascending=False)
-			#scores = scores.groupby(["w1"]).tail(2)
-			scores.drop_duplicates(subset=["w2"], keep="last", inplace=True)
-			scores.drop_duplicates(subset=["w1"], keep="last", inplace=True)
+			scores.sort_values(by=["t_score_lemma"], inplace=True, ascending=False)
+			scores = scores.drop_duplicates(subset=["w2"], keep="last")
+			scores = scores.drop_duplicates(subset=["w1"], keep="last")
 
-			# scores = scores[""]
-
-
-			scores.drop(["w1", "w2", "fordrop"], 1, inplace=True)
+			scores.drop(["w1", "w2"], 1, inplace=True)
 
 			# if scores.shape[0] > num:
 				# ints = sorted(nrandom.choice(range(scores.shape[0]), num, replace=False))
 				# scores = scores.iloc[ints,:]
 
-			del scorer
-			del items
-			#
-			from assign_search_lemma import ScorerLemma
-			with open("E:\\stimuli_coca_exp19\\mapping.json", "r") as f:
-				mapping = json.load(f)
-
-			scores["bigram_lemma"] = [mapping[x] for x in scores["bigram"]]
-			scorer = ScorerLemma()
-			lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
-
-			scores = scores.merge(lemmascores, on=["bigram_lemma"])
-			scores["bigram_tag"] = scores["bigram"].values
-			scores["bigram"] = scores["bigram"].str.replace("_[^ ]+", "")
-			scores["bigram_lemma_tag"] = scores["bigram_lemma"].values
-			scores["bigram_lemma"] = scores["bigram_lemma"].str.replace("_[^ ]+", "")
-
-			scores = scores[['bigram', 'bigram_tag', 'bigram_lemma', 'bigram_lemma_tag', 'w1_freq', 'w2_freq', 'bigram_freq', 'tp_b', 'tp_d', 'log_lklhd', 'dice', 'moddice', 't_score', 'z_score', 'mi_score', 'mi3_score', 'g_score', 'delta_p12', 'delta_p21', 'w1_freq_lemma', 'w2_freq_lemma', 'bigram_freq_lemma', 'tp_b_lemma', 'tp_d_lemma', 'log_lklhd_lemma', 'dice_lemma', 'moddice_lemma', 't_score_lemma', 'z_score_lemma', 'mi_score_lemma', 'mi3_score_lemma', 'g_score_lemma', 'delta_p12_lemma', 'delta_p21_lemma']]
-			scores.drop_duplicates(subset=["w2"], keep="last", inplace=True)
-			scores.drop_duplicates(subset=["w1"], keep="last", inplace=True)
 			scores.to_csv(outpath, index=False)
 
 			print("________\nDone.\n\n\n\n")
@@ -1288,8 +1131,7 @@ if __name__ == "__main__":
 		else:
 			print("_________\nFail: could not find anything.\n\n\n")
 		try:
-			#os.remove("_temp.csv")
-			pass
+			os.remove("_temp.csv")
 		except:
 			print("Couldn't remove the temp file.")
 
