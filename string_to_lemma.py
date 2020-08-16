@@ -19,8 +19,7 @@ import sys
 path_to_coca = "E:/coca_2019_wlp"
 
 def preprocess(filename, queue):
-	# print(filename)
-	with open(filename, "r") as i:
+	with open(filename, "r", errors="replace") as i:
 		try:
 			doc = i.read()
 
@@ -34,10 +33,7 @@ def preprocess(filename, queue):
 			declined = re.compile("@_")
 			for word in doc:
 				if len(word) == 4: #changed from 3 to 4
-					try:
-						pos = word[3][1]
-					except IndexError:
-						pos = word[3][0]
+					pos = word[3][0]
 					d.append([[word[1], word[3]],[word[2], pos]]) #changed from 0 2 1 20 to 1 3 2 pos (defined above)
 				#elif word[1].startswith("##"): #changed from 0 to 1
 					# d = [["_".join(w).strip(),"_".join(l).strip()] for w,l in d]
@@ -50,7 +46,8 @@ def preprocess(filename, queue):
 					pass
 
 			d = [["_".join(w).strip(),"_".join(l).strip()] for w,l in d]
-			d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:]) if not (x[0].endswith("_y") or y[0].endswith("_y"))]
+			punctuation = [",", ".", "!", "?", ";", ":"]
+			d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:]) if not (x[0] in punctuation) or (y[0] in punctuation)]
 			d = [[x,y] for x,y in d if re.match(declined, x) == None]
 			docs.append(d)
 
