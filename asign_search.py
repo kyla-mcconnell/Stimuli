@@ -19,6 +19,9 @@ import pandas as pd
 import gc
 gc.enable()
 
+score_path = "E:/stimuli_coca_exp19/scores/"
+mapping_path = "E:/stimuli_coca_exp19/mapping.json"
+
 def getSettings():
 
 	try:
@@ -194,9 +197,11 @@ class Scorer(object):
 		self.optimizer = "pruning"
 		self.beam_width = 5
 		import os
-		#files = ["wfreqs.json", "bigrams.json","fwd.json","bckw.json","llscore.json", "tscore.json", "miscore.json","mi3score.json"]
-		files = ["wfreqs.json", "bigrams.json","fwd.json","bckw.json","llscore.json", "dicescore.json", "moddicescore.json","tscore.json","zscore.json", "delta_p21.json", "delta_p12.json", "miscore.json","mi3score.json","gscore.json"]
-		files = ["XXXX" for x in files]
+		#reduced options (to save RAM):
+		files = ["wfreqs.json", "bigrams.json","fwd.json","bckw.json","llscore.json", "tscore.json", "miscore.json","mi3score.json"]
+		#full options:
+		#files = ["wfreqs.json", "bigrams.json","fwd.json","bckw.json","llscore.json", "dicescore.json", "moddicescore.json","tscore.json","zscore.json", "delta_p21.json", "delta_p12.json", "miscore.json","mi3score.json","gscore.json"]
+		files = [score_path + x for x in files]
 		try:
 			filecheck = [os.path.isfile(f) for f in files]
 			if all(filecheck) != True:
@@ -214,8 +219,7 @@ class Scorer(object):
 		print("\nLoading the saved scores")
 		print("    unigram frequency")
 
-		#file_folder = "E:\\stimuli_coca_exp19\\scores\\"
-		file_folder = "E:\\stimuli_coca_exp19\\scores\\"
+		file_folder = score_path
 		with open(file_folder + "wfreqs.json", "r") as i:
 			self.wfreq = json.loads(i.read())
 
@@ -223,53 +227,53 @@ class Scorer(object):
 		with open(file_folder + "bigrams.json", "r") as i:
 			self.bg_frq = json.loads(i.read())
 
-		print("    TP-D")
-		with open(file_folder + "fwd.json", "r") as i:
-			self.tp_d = json.loads(i.read())
+		# print("    TP-D")
+		# with open(file_folder + "fwd.json", "r") as i:
+		# 	self.tp_d = json.loads(i.read())
+		#
+		# print("    TP-B")
+		# with open(file_folder + "bckw.json", "r") as i:
+		# 	self.tp_b = json.loads(i.read())
+		#
+		# print("    Log likelihood")
+		# with open(file_folder + "llscore.json", "r") as i:
+		# 	self.log_lklhd = json.loads(i.read())
 
-		print("    TP-B")
-		with open(file_folder + "bckw.json", "r") as i:
-			self.tp_b = json.loads(i.read())
+		# print("    Dice")
+		# with open(file_folder + "dicescore.json", "r") as i:
+		# 	self.dice = json.loads(i.read())
 
-		print("    Log likelihood")
-		with open(file_folder + "llscore.json", "r") as i:
-			self.log_lklhd = json.loads(i.read())
+		# print("    Modified dice")
+		# with open(file_folder + "moddicescore.json", "r") as i:
+		# 	self.moddice = json.loads(i.read())
 
-		print("    Dice")
-		with open(file_folder + "dicescore.json", "r") as i:
-			self.dice = json.loads(i.read())
+		# print("    t-score")
+		# with open(file_folder + "tscore.json", "r") as i:
+		# 	self.t_score = json.loads(i.read())
 
-		print("    Modified dice")
-		with open(file_folder + "moddicescore.json", "r") as i:
-			self.moddice = json.loads(i.read())
+		# print("    z-score")
+		# with open(file_folder + "zscore.json", "r") as i:
+		# 	self.z_score = json.loads(i.read())
 
-		print("    t-score")
-		with open(file_folder + "tscore.json", "r") as i:
-			self.t_score = json.loads(i.read())
+		# print("    delta_p-12")
+		# with open(file_folder + "delta_p12.json", "r") as i:
+		# 	self.delta_p12 = json.loads(i.read())
 
-		print("    z-score")
-		with open(file_folder + "zscore.json", "r") as i:
-			self.z_score = json.loads(i.read())
+		# print("    delta_p-21")
+		# with open(file_folder + "delta_p21.json", "r") as i:
+		# 	self.delta_p21 = json.loads(i.read())
 
-		print("    delta_p-12")
-		with open(file_folder + "delta_p12.json", "r") as i:
-			self.delta_p12 = json.loads(i.read())
+		# print("    MI-score")
+		# with open(file_folder + "miscore.json", "r") as i:
+		# 	self.mi_score = json.loads(i.read())
+		#
+		# print("    MI3-score")
+		# with open(file_folder + "mi3score.json", "r") as i:
+		# 	self.mi3_score = json.loads(i.read())
 
-		print("    delta_p-21")
-		with open(file_folder + "delta_p21.json", "r") as i:
-			self.delta_p21 = json.loads(i.read())
-
-		print("    MI-score")
-		with open(file_folder + "miscore.json", "r") as i:
-			self.mi_score = json.loads(i.read())
-
-		print("    MI3-score")
-		with open(file_folder + "mi3score.json", "r") as i:
-			self.mi3_score = json.loads(i.read())
-
-		print("    G-score")
-		with open(file_folder + "gscore.json", "r") as i:
-			self.g_score = json.loads(i.read())
+		# print("    G-score")
+		# with open(file_folder + "gscore.json", "r") as i:
+		# 	self.g_score = json.loads(i.read())
 		print("_________________________________")
 
 		except Exception as e:
@@ -305,69 +309,70 @@ class Scorer(object):
 			except:
 				bg_frq = "NA"
 
-			try:
-				tp_d = self.tp_d[w1][w2]
-			except:
-				tp_d = "NA"
+			# try:
+			# 	tp_d = self.tp_d[w1][w2]
+			# except:
+			# 	tp_d = "NA"
+			#
+			# try:
+			# 	tp_b = self.tp_b[w2][w1]
+			# except:
+			# 	tp_b = "NA"
+			#
+			# try:
+			# 	log_lklhd = self.log_lklhd[bigram]
+			# except:
+			# 	log_lklhd = "NA"
 
-			try:
-				tp_b = self.tp_b[w2][w1]
-			except:
-				tp_b = "NA"
+			# try:
+			# 	dice = self.dice[bigram]
+			# except:
+			# 	dice = "NA"
+			#
+			# try:
+			# 	moddice = self.moddice[bigram]
+			# except:
+			# 	moddice = "NA"
+			#
+			# try:
+			# 	t_score = self.t_score[bigram]
+			# except:
+			# 	t_score = "NA"
 
-			try:
-				log_lklhd = self.log_lklhd[bigram]
-			except:
-				log_lklhd = "NA"
+			# try:
+			# 	z_score = self.z_score[bigram]
+			# except:
+			# 	z_score = "NA"
+			#
+			# try:
+			# 	mi_score = self.mi_score[bigram]
+			# except:
+			# 	mi_score = "NA"
+			#
+			# try:
+			# 	mi3_score = self.mi3_score[bigram]
+			# except:
+			# 	mi3_score = "NA"
 
-			try:
-				dice = self.dice[bigram]
-			except:
-				dice = "NA"
+			# try:
+			# 	g_score = self.g_score[bigram]
+			# except:
+			# 	g_score = "NA"
+			#
+			# try:
+			# 	delta_p12 = self.delta_p12[bigram]
+			# except:
+			# 	delta_p12 = "NA"
+			#
+			# try:
+			# 	delta_p21 = self.delta_p21[bigram]
+			# except:
+			# 	delta_p21 = "NA"
 
-			try:
-				moddice = self.moddice[bigram]
-			except:
-				moddice = "NA"
-
-			try:
-				t_score = self.t_score[bigram]
-			except:
-				t_score = "NA"
-
-			try:
-				z_score = self.z_score[bigram]
-			except:
-				z_score = "NA"
-
-			try:
-				mi_score = self.mi_score[bigram]
-			except:
-				mi_score = "NA"
-
-			try:
-				mi3_score = self.mi3_score[bigram]
-			except:
-				mi3_score = "NA"
-
-			try:
-				g_score = self.g_score[bigram]
-			except:
-				g_score = "NA"
-
-			try:
-				delta_p12 = self.delta_p12[bigram]
-			except:
-				delta_p12 = "NA"
-
-			try:
-				delta_p21 = self.delta_p21[bigram]
-			except:
-				delta_p21 = "NA"
-
-			items_out.append([bigram, w1_frq, w2_frq, bg_frq, tp_b, tp_d, log_lklhd, dice, moddice, t_score, z_score, mi_score, mi3_score, g_score, delta_p12, delta_p21])
+			#items_out.append([bigram, w1_frq, w2_frq, bg_frq, tp_b, tp_d, log_lklhd, dice, moddice, t_score, z_score, mi_score, mi3_score, g_score, delta_p12, delta_p21])
 			#items_out.append([bigram, w1_frq, w2_frq, bg_frq, tp_b, tp_d, log_lklhd, t_score, mi_score, mi3_score])
-			#items_out.append([bigram, w1_frq, w2_frq, bg_frq])
+			#reduced total (save ram):
+			items_out.append([bigram, w1_frq, w2_frq, bg_frq])
 
 		return(items_out)
 
@@ -836,10 +841,10 @@ if __name__ == "__main__":
 			sys.exit(0)
 
 		from assign_search_lemma import ScorerLemma
-		with open("E:/stimuli_coca_exp19/mapping.json", "r") as f:
+		with open(mapping_path, "r") as f:
 			mapping = json.load(f)
 			tagger = {sub("_[^ ]+", "", k):k for k in mapping}
-			# mapping = {sub("_[^ ]+", "", k):v for k,v in mapping.items()}
+			#mapping = {sub("_[^ ]+", "", k):v for k,v in mapping.items()}
 
 		if match("[^_]+_", " ".join(items[0])) == None:
 			new_items = []
@@ -856,10 +861,10 @@ if __name__ == "__main__":
 					# 		print("test")
 
 		items = new_items
-		#print("Second step items: " + str(items))
+		print("Second step items: " + str(items))
 		scorer = Scorer()
 		items = scorer.score(items)
-		#print("Third step items: " + str(items))
+		print("Third step items: " + str(items))
 
 		#scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq",  "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])
 		#scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq", "bigram_freq", "tp_b", "tp_d", "log_lklhd", "t_score", "mi_score", "mi3_score"])
@@ -867,40 +872,12 @@ if __name__ == "__main__":
 
 		del scorer
 		del items
-		#
-		# for x in scores["bigram"]:
-		# 	try:
-		# 		scores["bigram_lemma"] = mapping[x]
-		# 	except KeyError:
-		# 		print("KeyError line 864: " + x)
 
-		tagged_items = []
-
-		with open(inpath, "r") as infile:
-			items = scores["bigram"]
-			#items = infile.readlines()
-			items = [x.split() for x in items]
-			#print("items: " + str(items))
-			for w1, w2 in items:
-				#print(str(w2))
-				w1 = sub("_[a-z0-9@%]+", "", w1)
-				if "nn2" in w2:
-					if w2 != "approaches_nn2vvz":
-						w2 = sub("s?_[a-z0-9@%]+", "", w2)
-					else:
-						w2 = sub("es?_[a-z0-9@%]+", "", w2)
-				else:
-					w2 = sub("_[a-z0-9@%]+", "", w2)
-				#print(str(w2))
-				if w1 != "further":
-					tagged_w1 = w1 + "_j"
-				else:
-					tagged_w1 = w1 + "_r"
-				tagged_w2 = w2 + "_n"
-				tagged_items.append(str(tagged_w1 + " " + tagged_w2))
-		#print(tagged_items)
-		scores["bigram_lemma"] = tagged_items
-
+		for x in scores["bigram"]:
+			try:
+				scores["bigram_lemma"] = mapping[x]
+			except KeyError:
+				print("KeyError line 864: " + x)
 
 		scorer = ScorerLemma()
 		lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
@@ -908,13 +885,11 @@ if __name__ == "__main__":
 		lemmascores.drop_duplicates().reset_index(drop=True)
 		lemmascores["bigram_lemma"] = lemmascores["bigram_lemma"].astype(str)
 
-		#print(scores)
-		#print(lemmascores)
 
 		scores = scores.merge(lemmascores, on="bigram_lemma", how="outer")
 		scores.drop_duplicates().reset_index(drop=True)
 
-		#print(scores)
+		print(scores)
 
 		scores["bigram_tag"] = scores["bigram"]
 		scores["bigram_lemma_tag"] = scores["bigram_lemma"]
@@ -979,7 +954,7 @@ if __name__ == "__main__":
 		del items
 
 		from assign_search_lemma import ScorerLemma
-		with open("E:\\stimuli_coca_exp19\\mapping.json", "r") as f:
+		with open(mapping_path, "r") as f:
 			mapping = json.load(f)
 
 		scores["bigram_lemma"] = [mapping[x] for x in scores["bigram"]]
@@ -1085,7 +1060,7 @@ if __name__ == "__main__":
 
 		del scorer
 		from assign_search_lemma import ScorerLemma
-		with open("E:\\stimuli_coca_exp19\\mapping.json", "r") as f:
+		with open(mapping_path, "r") as f:
 			mapping = json.load(f)
 
 		scores["bigram_lemma"] = [mapping[x] for x in scores["bigram"]]
@@ -1261,7 +1236,7 @@ if __name__ == "__main__":
 			del items
 			#
 			from assign_search_lemma import ScorerLemma
-			with open("E:\\stimuli_coca_exp19\\mapping.json", "r") as f:
+			with open(mapping_path, "r") as f:
 				mapping = json.load(f)
 
 			scores["bigram_lemma"] = [mapping[x] for x in scores["bigram"]]
