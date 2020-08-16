@@ -16,7 +16,7 @@ from math import log
 import os
 import sys
 
-path_to_coca = "XXXX"
+path_to_coca = "E:/coca_2019_wlp"
 
 # Helper functions to allow multiprocessing
 def gscorer(items):
@@ -87,7 +87,8 @@ def preprocess(filename, queue):
 
 				elif word[0].startswith("##"):
 					d = ["_".join(w).strip() for w in d]
-					d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x.endswith("_y") or y.endswith("_y"))]
+					punctuation = [",", ".", "!", "?", ";", ":"]
+					d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation))]
 					d = [x for x in d if re.match(declined, x) == None]
 					docs.append(d)
 					d = []

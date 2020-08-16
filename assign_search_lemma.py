@@ -19,6 +19,8 @@ import pandas as pd
 import gc
 gc.enable()
 
+file_folder = "E:/stimuli_coca_exp19/scores/"
+
 def getSettings():
 
 	try:
@@ -187,6 +189,7 @@ def getDisbalance(new, old, penalty=3, mod=1):
 class ScorerLemma(object):
 	"""Loads all the score lists, can then be used to asign the scores on a per-item base with the score method.
 		It is memory-heavy, but could be included in functions which allow interactive collocation input."""
+		##Required input format should be added to docstring..
 
 	def __init__(self):
 		"""Load the required score files. If they are not present in the folder, throw an exception."""
@@ -195,9 +198,6 @@ class ScorerLemma(object):
 		self.beam_width = 5
 		import os
 		files = ["wfreqs_lemma.json", "bigrams_lemma.json","fwd_lemma.json","bckw_lemma.json","llscore_lemma.json", "dicescore_lemma.json", "moddicescore_lemma.json","tscore_lemma.json","zscore_lemma.json", "delta_p21_lemma.json", "delta_p12_lemma.json", "miscore_lemma.json","mi3score_lemma.json","gscore_lemma.json"]
-		#files = ["/Users/kylamcconnell/Documents/PhD/Experiment_2019/Stimuli/stimuli/scores2/scores2/"+x for x in files]
-		#file_folder = "E:/stimuli_coca_exp19/scores/"
-		file_folder = "E:/stimuli_coca_exp19/scores/"
 		files = [file_folder +x for x in files]
 		try:
 			filecheck = [os.path.isfile(f) for f in files]
