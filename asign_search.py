@@ -287,9 +287,7 @@ class Scorer(object):
 		[item1, item2]. If a bigram is not in the score list, return NA."""
 
 		items_out = []
-		print(items)
 		for bigram in items:
-			print(bigram)
 
 			w1, w2 = bigram
 			bigram = " ".join(bigram)
@@ -806,7 +804,8 @@ class Scorer(object):
 			return(results)
 
 if __name__ == "__main__":
-	mode = None
+	#mode = None
+	mode = "score"
 	while mode not in ["score", "search", "strat_search", "match"]:
 		mode = input("Which mode should this program run in?\n Score/search/strat_search/match: ")
 
@@ -815,7 +814,8 @@ if __name__ == "__main__":
 		if len(sys.argv) > 1:
 			inpath = sys.argv[1]
 		else:
-			inpath = input("Where is the file to load?\n     ")
+			inpath = "stimuli_list.txt"
+			#inpath = input("Where is the file to load?\n     ")
 
 		try:
 			with open(inpath, "r") as infile:
@@ -860,10 +860,9 @@ if __name__ == "__main__":
 					# 	except KeyError:
 					# 		print("test")
 
-		items = new_items
-		print("Second step items: " + str(items))
+		print("Second step items: " + str(new_items))
 		scorer = Scorer()
-		items = scorer.score(items)
+		items = scorer.score(new_items)
 		print("Third step items: " + str(items))
 
 		#scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq",  "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])
@@ -873,11 +872,14 @@ if __name__ == "__main__":
 		del scorer
 		del items
 
+		tagged_lemmas = []
 		for x in scores["bigram"]:
 			try:
-				scores["bigram_lemma"] = mapping[x]
+				tagged_lemmas.append(mapping[x])
 			except KeyError:
 				print("KeyError line 864: " + x)
+
+		scores["bigram_lemma"] = tagged_lemmas
 
 		scorer = ScorerLemma()
 		lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
