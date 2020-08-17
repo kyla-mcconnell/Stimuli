@@ -276,11 +276,11 @@ class Scorer(object):
 		# 	self.g_score = json.loads(i.read())
 		print("_________________________________")
 
-		except Exception as e:
-			print("Not all score files could be loaded. Check that they are in the same folder as this script.")
-			print("Exiting")
-		 	print(e)
-			sys.exit(1)
+		# except Exception as e:
+		# 	print("Not all score files could be loaded. Check that they are in the same folder as this script.")
+		# 	print("Exiting")
+		#  	print(e)
+		# 	sys.exit(1)
 
 	def score(self, items):
 		"""Score all the bigrams at once. Input is a list of lists with the sublist format
