@@ -69,7 +69,7 @@ def preprocess(filename, queue):
 		try:
 			doc = i.read()
 
-			doc = re.sub("_", "", doc)
+			#doc = re.sub("_", "", doc)
 			doc = re.sub("\t+", "\t", doc)
 			doc = doc.split("\n")
 			doc = [word.split("\t") for word in doc]
@@ -79,10 +79,7 @@ def preprocess(filename, queue):
 			declined = re.compile("@_")
 			for word in doc:
 				if len(word) == 4: #changed from 3 to 4
-					try:
-						pos = word[3][1]
-					except:
-						pos = word[3][0]
+					pos = word[3][0]
 					d.append([word[2], pos])  #changed from 1 20 to 2 31
 
 				elif word[0].startswith("##"):
@@ -96,8 +93,8 @@ def preprocess(filename, queue):
 			else:
 				pass
 
-			d = ["_".join(w).strip() for w in d]
-			d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x.endswith("_y") or y.endswith("_y"))]
+			punctuation = [",", ".", "!", "?", ";", ":"]
+			d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation))]
 			d = [x for x in d if re.match(declined, x) == None]
 
 			docs.append(d)

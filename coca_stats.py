@@ -113,7 +113,7 @@ def preprocess_wfreq(filename, queue):
 		try:
 			doc = i.read()
 
-			doc = re.sub("_", "", doc)
+			#doc = re.sub("_", "", doc)
 			doc = re.sub("\t+", "\t", doc)
 			doc = doc.split("\n")
 			doc = [word.split("\t") for word in doc]
@@ -123,7 +123,8 @@ def preprocess_wfreq(filename, queue):
 			declined = re.compile("@_")
 			for word in doc:
 				if len(word) == 4: #changed from 3 to 4
-					d.append([word[1], word[3]]) #changed from 0 2 to 1 3
+					pos = re.sub("_.*", "", word[3])
+					d.append([word[1], pos]) #changed from 0 2 to 1 3
 
 				elif word[0].startswith("##"):
 					d = ["_".join(w).strip() for w in d]

@@ -23,7 +23,7 @@ def preprocess(filename, queue):
 		try:
 			doc = i.read()
 
-			doc = re.sub("_", "", doc)
+			#doc = re.sub("_", "", doc)
 			doc = re.sub("\t+", "\t", doc)
 			doc = doc.split("\n")
 			doc = [word.split("\t") for word in doc]
@@ -165,6 +165,7 @@ if __name__ == "__main__":
 	coca = open("_COCA2_mapping.txt", "r")
 	mapping = {}
 	log = open("conversionlog.txt", "w+")
+
 	for line in tqdm.tqdm(coca, total=115):
 		bgs = json.loads(line)
 		bgs = [[x.strip(), y.strip()] for x,y in bgs if not x.startswith("##")]
