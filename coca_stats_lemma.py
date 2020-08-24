@@ -85,7 +85,7 @@ def preprocess(filename, queue):
 				elif word[0].startswith("##"):
 					d = ["_".join(w).strip() for w in d]
 					punctuation = [",", ".", "!", "?", ";", ":"]
-					d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation))]
+					d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
 					d = [x for x in d if re.match(declined, x) == None]
 					docs.append(d)
 					d = []
@@ -94,7 +94,7 @@ def preprocess(filename, queue):
 				pass
 
 			punctuation = [",", ".", "!", "?", ";", ":"]
-			d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation))]
+			d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
 			d = [x for x in d if re.match(declined, x) == None]
 
 			docs.append(d)
