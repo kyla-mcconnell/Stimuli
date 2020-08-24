@@ -64,6 +64,45 @@ def llscorer(items):
 	return([bigram, 2*sum(parts)])
 
 def preprocess(filename, queue):
+	with open(filename, "r", errors="replace") as i:
+		doc = i.read()
+		#doc = re.sub("_", "", doc)
+		doc = re.sub("\t+", "\t", doc)
+		doc = doc.split("\n")
+		doc = [word.split("\t") for word in doc]
+
+		docs = []
+		d = []
+		declined = re.compile("@_")
+		for word in doc:
+			if len(word) == 4: #changed from 3 to 4
+				pos = word[3][0]
+				d.append([word[2], pos])  #changed from 1 20 to 2 31
+
+				# elif word[0].startswith("##"):
+				# 	d = ["_".join(w).strip() for w in d]
+				# 	punctuation = [",", ".", "!", "?", ";", ":"]
+				# 	d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
+				# 	d = [x for x in d if re.match(declined, x) == None]
+				# 	docs.append(d)
+				# 	d = []
+					
+		d = ["_".join(w).strip() for w in d if not w[1].endswith("y")]
+		#punctuation = [",", ".", "!", "?", ";", ":"]
+		#d = [bigram_list[0] + "_" + bigram_list[1] for bigram_list in d if not (bigram_list[0] in punctuation)]
+		#d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
+		d = [x for x in d if re.match(declined, x) == None]
+
+		docs.append(d)
+
+		docs = [item for sublist in docs for item in sublist]
+
+		queue.put(json.dumps(docs))
+
+		# except:
+		# 	print("Error: " + filename)
+
+def preprocess_wfreq(filename, queue):
 	# print(filename)
 	with open(filename, "r", errors="replace") as i:
 		try:
@@ -80,60 +119,14 @@ def preprocess(filename, queue):
 			for word in doc:
 				if len(word) == 4: #changed from 3 to 4
 					pos = word[3][0]
-					d.append([word[2], pos])  #changed from 1 20 to 2 31
-
-				elif word[0].startswith("##"):
-					d = ["_".join(w).strip() for w in d]
-					punctuation = [",", ".", "!", "?", ";", ":"]
-					d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
-					d = [x for x in d if re.match(declined, x) == None]
-					docs.append(d)
-					d = []
-
-			else:
-				pass
-
-			punctuation = [",", ".", "!", "?", ";", ":"]
-			d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
-			d = [x for x in d if re.match(declined, x) == None]
-
-			docs.append(d)
-
-			docs = [item for sublist in docs for item in sublist]
-
-			queue.put(json.dumps(docs))
-
-		except:
-			print("Error: " + filename)
-
-def preprocess_wfreq(filename, queue):
-	# print(filename)
-	with open(filename, "r", errors="replace") as i:
-		try:
-			doc = i.read()
-
-			doc = re.sub("_", "", doc)
-			doc = re.sub("\t+", "\t", doc)
-			doc = doc.split("\n")
-			doc = [word.split("\t") for word in doc]
-
-			docs = []
-			d = []
-			declined = re.compile("@_")
-			for word in doc:
-				if len(word) == 4: #changed from 3 to 4
-					try:
-						pos = word[3][1]
-					except:
-						pos = word[3][0]
 					d.append([word[2], pos])
 
-				elif word[0].startswith("##"):
-					d = ["_".join(w).strip() for w in d]
-					d = [x for x in d if not x.endswith("_y")]
-					d = [x for x in d if re.match(declined, x) == None]
-					docs.append(d)
-					d = []
+				# elif word[0].startswith("##"):
+				# 	d = ["_".join(w).strip() for w in d]
+				# 	d = [x for x in d if not x.endswith("_y")]
+				# 	d = [x for x in d if re.match(declined, x) == None]
+				# 	docs.append(d)
+				# 	d = []
 
 				else:
 					pass
@@ -148,14 +141,17 @@ def preprocess_wfreq(filename, queue):
 
 			queue.put(json.dumps(docs))
 
-		except UnicodeError as e:
-			offending = e.object[e.start:e.end]
-			print("This file isn't encoded with", e.encoding)
-			print("Illegal bytes:", repr(offending))
-			seen_text = e.object[:e.start]
-			line_no = seent_text.count(b'\n') + 1
-			print("Line number: " + line_no)
-			raise
+		except:
+			print("Error: " + str(filename))
+
+		# except UnicodeError as e:
+		# 	offending = e.object[e.start:e.end]
+		# 	print("This file isn't encoded with", e.encoding)
+		# 	print("Illegal bytes:", repr(offending))
+		# 	seen_text = e.object[:e.start]
+		# 	line_no = seent_text.count(b'\n') + 1
+		# 	print("Line number: " + line_no)
+		# 	raise
 
 def listener(queue, filename):
 	f = open(filename, 'w')
@@ -175,7 +171,8 @@ if __name__ == "__main__":
 		print("WARNING: This is RAM-intensive operation. It cannot continue if you don't have at least 8 GB of RAM.\nExiting...")
 		sys.exit(0)
 
-	total, used, free = shutil.disk_usage("\\")
+	#total, used, free = shutil.disk_usage("\\")
+	total, used, free = shutil.disk_usage("/")
 	print("Free drive space: %d/%d GB" % ((free // (2**30)), (total // (2**30))))
 	if (free // (2**30)) < 7:
 		print("WARNING: This is space-intensive operation. It cannot continue if you don't have at least 15 GB of free space on the same drive as the script.\nExiting...")
