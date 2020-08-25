@@ -187,6 +187,68 @@ def getDisbalance(new, old, penalty=3, mod=1):
 	old == old**penalty
 	return(nsum(old))
 
+class Tagger:
+  def __init__(self, iterable_of_tagged):
+    self.tagging_map = {}
+    for tagged in iterable_of_tagged:
+      untagged = sub("_[^ ]+", "", tagged)
+      if untagged in self.tagging_map:
+        self.tagging_map[untagged].append(tagged)
+      else:
+        self.tagging_map[untagged] = [tagged]
+
+  def tag(self, item_to_tag):
+    """Tag an item. If only one option is know, this is assumed to be the correct option.
+	If multiple options are known, the correct one can be picked or specified manually.
+	If no option is known, the tags should be written manually."""
+    try:
+      tags = self.tagging_map[item_to_tag]
+      if len(tags) == 1:
+        return tags[0]
+      elif len(tags) > 1:
+        return self.pick_a_tag_from_selection(item_to_tag, tags)
+    except:
+      return self.tag_manually(item_to_tag)
+
+  def pick_a_tag_from_selection(self, item_to_tag, tags):
+    """Allow the user to select one of multiple offered tags or specify their own tagging"""
+    print("_"*10)
+    print("There are multiple possible tags for '{}'".format(item_to_tag))
+    for index, tag in enumerate(tags):
+      print("\t[{}] {}".format(index, tag))
+    print("\n\t[m] a manual tag")
+
+    choice = None;
+    while choice == None:
+      new_choice = input("\nPick the relevant tag\n> ")
+      if new_choice.lower() == "m":
+        return self.tag_manually(item_to_tag)
+      try:
+        new_choice = int(new_choice)
+        if (new_choice >= 0) and (new_choice < len(tags)):
+          choice = new_choice
+      except:
+        pass
+
+    return tags[choice]
+  
+  def tag_manually(self, item_to_tag):
+    """Allow manual tagging of items not found in the simple tagging map.
+	Expects the user to input valid tags"""
+    print("_"*10)
+    print(
+		"The item '{}' cannot be tagged semi-automatically. Please tag it manually.".format(item_to_tag)
+		)
+    w1, w2 = item_to_tag.split()
+
+    # TODO: input validation/formatting (lowercase?)
+    w1_tag = input("{}_".format(w1))
+    w2_tag = input("{}_".format(w2))
+
+    return "{}_{} {}_{}".format(w1,w1_tag,w2,w2_tag)
+
+
+
 class Scorer(object):
 	"""Loads all the score lists, can then be used to assign the scores on a per-item base with the score method.
 		It is memory-heavy, but could be included in functions which allow interactive collocation input."""
@@ -843,16 +905,42 @@ if __name__ == "__main__":
 		from assign_search_lemma import ScorerLemma
 		with open(mapping_path, "r") as f:
 			mapping = json.load(f)
-			tagger = {sub("_[^ ]+", "", k):k for k in mapping}
-			#mapping = {sub("_[^ ]+", "", k):v for k,v in mapping.items()}
+			tagger = Tagger(mapping)
 
 		if match("[^_]+_", " ".join(items[0])) == None:
-			new_items = []
-			for x in items:
+			tagged_items = []
+			for item in items:
 				try:
-					new_items.append(tagger[" ".join(x)].split())
-				except:
-					print("Error: " + str(x))
+					tagged_items.append(tagger.tag(item))
+				except Exception as e:
+					print(str(e) + str(item))
+			
+			
+			#tagger = {sub("_[^ ]+", "", k):k for k in mapping}
+			#tagger = {}
+			#for k in mapping:
+				#untagged = sub("_[^ ]+", ", k")
+				#if untagged in tagger
+					#tagger[untagged].append(tagged) #tagged = k
+				#else:
+					#tagger[untagged] = [tagged]
+
+		# tagging
+		#for item in items:
+			#tags = tagger[item]
+			# filter only for Adj - N combinations
+			# if len(`filtered`) == 1 --> tag found
+			# else decide manually
+
+			#mapping = {sub("_[^ ]+", "", k):v for k,v in mapping.items()}
+
+		#if match("[^_]+_", " ".join(items[0])) == None:
+			#new_items = []
+			#for x in items:
+				#try:
+					#new_items.append(tagger[" ".join(x)].split())
+				#except:
+					#print("Error: " + str(x))
 
 					# if match("[^_]+_", " ".join(items[0])) == None:
 					# 	try:
@@ -860,9 +948,9 @@ if __name__ == "__main__":
 					# 	except KeyError:
 					# 		print("test")
 
-		print("Second step items: " + str(new_items))
+		print("Second step items: " + str(tagged_items))
 		scorer = Scorer()
-		items = scorer.score(new_items)
+		items = scorer.score(tagged_items)
 		print("Third step items: " + str(items))
 
 		#scores = pd.DataFrame(items, columns=["bigram", "w1_freq", "w2_freq",  "bigram_freq", "tp_b", "tp_d", "log_lklhd", "dice", "moddice", "t_score", "z_score", "mi_score", "mi3_score", "g_score", "delta_p12", "delta_p21"])

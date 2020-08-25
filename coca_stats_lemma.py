@@ -357,9 +357,9 @@ if __name__ == "__main__":
 	backup_out.close()
 
 
-	with open("bigrams_lemma.json", "r") as i:
+	with open("scores/bigrams_lemma.json", "r") as i:
 		counter = json.loads(i.read())
-	with open("wfreqs_lemma.json", "r") as i:
+	with open("scores/wfreqs_lemma.json", "r") as i:
 		w_freq = json.loads(i.read())
 
 	w_count = 0
