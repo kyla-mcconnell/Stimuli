@@ -192,7 +192,6 @@ class Tagger:
 		self.tagging_map = {}
 		for tagged in iterable_of_tagged:
 			untagged = sub("_[^ ]+", "", tagged)
-			untagged = " ".join(untagged)
 			if untagged in self.tagging_map:
 				self.tagging_map[untagged].append(tagged)
 			else:
@@ -909,6 +908,7 @@ if __name__ == "__main__":
 		if match("[^_]+_", " ".join(items[0])) == None:
 			tagged_items = []
 			for item in items:
+				item = " ".join(item)
 				try:
 					tagged_items.append(tagger.tag(item))
 				except Exception as e:
