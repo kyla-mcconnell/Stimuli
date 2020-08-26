@@ -188,63 +188,63 @@ def getDisbalance(new, old, penalty=3, mod=1):
 	return(nsum(old))
 
 class Tagger:
-  def __init__(self, iterable_of_tagged):
-    self.tagging_map = {}
-    for tagged in iterable_of_tagged:
-		untagged = sub("_[^ ]+", "", tagged)
-		untagged = " ".join(untagged)
-      	if untagged in self.tagging_map:
-        	self.tagging_map[untagged].append(tagged)
-      	else:
-        	self.tagging_map[untagged] = [tagged]
+	def __init__(self, iterable_of_tagged):
+		self.tagging_map = {}
+		for tagged in iterable_of_tagged:
+			untagged = sub("_[^ ]+", "", tagged)
+			untagged = " ".join(untagged)
+			if untagged in self.tagging_map:
+				self.tagging_map[untagged].append(tagged)
+			else:
+				self.tagging_map[untagged] = [tagged]
 
-  def tag(self, item_to_tag):
-    """Tag an item. If only one option is know, this is assumed to be the correct option.
-	If multiple options are known, the correct one can be picked or specified manually.
-	If no option is known, the tags should be written manually."""
-    try:
-		tags = self.tagging_map[item_to_tag]
-		if len(tags) == 1:
-			return tags[0]
-		elif len(tags) > 1:
-			return self.pick_a_tag_from_selection(item_to_tag, tags)
-    except:
-		return self.tag_manually(item_to_tag)
-
-  def pick_a_tag_from_selection(self, item_to_tag, tags):
-	  """Allow the user to select one of multiple offered tags or specify their own tagging"""
-	  print("_"*10)
-	  print("There are multiple possible tags for '{}'".format(item_to_tag))
-	  for index, tag in enumerate(tags):
-		  print("\t[{}] {}".format(index, tag))
-		  print("\n\t[m] a manual tag")
-
-    choice = None;
-    while choice == None:
-		new_choice = input("\nPick the relevant tag\n> ")
-		if new_choice.lower() == "m":
-			return self.tag_manually(item_to_tag)
+	def tag(self, item_to_tag):
+		"""Tag an item. If only one option is know, this is assumed to be the correct option.
+		If multiple options are known, the correct one can be picked or specified manually.
+		If no option is known, the tags should be written manually."""
 		try:
-			new_choice = int(new_choice)
-			if (new_choice >= 0) and (new_choice < len(tags)):
-				choice = new_choice
-	except:
-        pass
+			tags = self.tagging_map[item_to_tag]
+			if len(tags) == 1:
+				return tags[0]
+			elif len(tags) > 1:
+				return self.pick_a_tag_from_selection(item_to_tag, tags)
+		except:
+			return self.tag_manually(item_to_tag)
 
-    return tags[choice]
-  
-  def tag_manually(self, item_to_tag):
-	  """Allow manual tagging of items not found in the simple tagging map.
-	  Expects the user to input valid tags"""
-	  print("_"*10)
-	  print("The item '{}' cannot be tagged semi-automatically. Please tag it manually.".format(item_to_tag))
-	  w1, w2 = item_to_tag.split()
+	def pick_a_tag_from_selection(self, item_to_tag, tags):
+		"""Allow the user to select one of multiple offered tags or specify their own tagging"""
+		print("_"*10)
+		print("There are multiple possible tags for '{}'".format(item_to_tag))
+		for index, tag in enumerate(tags):
+			print("\t[{}] {}".format(index, tag))
+			print("\n\t[m] a manual tag")
 
-    # TODO: input validation/formatting (lowercase?)
-    w1_tag = input("{}_".format(w1))
-    w2_tag = input("{}_".format(w2))
+		choice = None;
+		while choice == None:
+			new_choice = input("\nPick the relevant tag\n> ")
+			if new_choice.lower() == "m":
+				return self.tag_manually(item_to_tag)
+			try:
+				new_choice = int(new_choice)
+				if (new_choice >= 0) and (new_choice < len(tags)):
+					choice = new_choice
+			except:
+				pass
 
-    return "{}_{} {}_{}".format(w1,w1_tag,w2,w2_tag)
+			return tags[choice]
+
+	def tag_manually(self, item_to_tag):
+		"""Allow manual tagging of items not found in the simple tagging map.
+		Expects the user to input valid tags"""
+		print("_"*10)
+		print("The item '{}' cannot be tagged semi-automatically. Please tag it manually.".format(item_to_tag))
+		w1, w2 = item_to_tag.split()
+
+		# TODO: input validation/formatting (lowercase?)
+		w1_tag = input("{}_".format(w1))
+		w2_tag = input("{}_".format(w2))
+
+		return "{}_{} {}_{}".format(w1,w1_tag,w2,w2_tag)
 
 
 
@@ -913,8 +913,8 @@ if __name__ == "__main__":
 					tagged_items.append(tagger.tag(item))
 				except Exception as e:
 					print(str(e) + str(item))
-			
-			
+
+
 			#tagger = {sub("_[^ ]+", "", k):k for k in mapping}
 			#tagger = {}
 			#for k in mapping:
