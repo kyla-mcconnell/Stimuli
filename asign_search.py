@@ -910,7 +910,8 @@ if __name__ == "__main__":
 			for item in items:
 				item = " ".join(item)
 				try:
-					tagged_items.append(tagger.tag(item))
+					tagged_item = tagger.tag(item)
+					tagged_items.append(tagged_item.split())
 				except Exception as e:
 					print(str(e) + str(item))
 
@@ -964,9 +965,9 @@ if __name__ == "__main__":
 			try:
 				tagged_lemmas.append(mapping[x])
 			except KeyError:
-				print("KeyError line 864: " + x)
+				tagged_lemmas.append("NA NA")
 
-		scores["bigram_lemma"] = tagged_lemmas
+		scores["bigram_lemma"] = pd.Series(tagged_lemmas)
 
 		scorer = ScorerLemma()
 		lemmascores = pd.DataFrame(scorer.score([x.split() for x in scores["bigram_lemma"]]), columns=["bigram_lemma", "w1_freq_lemma", "w2_freq_lemma",  "bigram_freq_lemma", "tp_b_lemma", "tp_d_lemma", "log_lklhd_lemma", "dice_lemma", "moddice_lemma", "t_score_lemma", "z_score_lemma", "mi_score_lemma", "mi3_score_lemma", "g_score_lemma", "delta_p12_lemma", "delta_p21_lemma"])
