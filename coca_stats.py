@@ -90,7 +90,7 @@ def preprocess(filename, queue):
 				# 	d = []
 
 				else:
-					pass
+					print(filename)
 
 
 			d = ["_".join(w).strip() for w in d]
