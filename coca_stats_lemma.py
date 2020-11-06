@@ -90,7 +90,7 @@ def preprocess(filename, queue):
 		d = ["_".join(w).strip() for w in d if not w[1].endswith("y")]
 		#punctuation = [",", ".", "!", "?", ";", ":"]
 		#d = [bigram_list[0] + "_" + bigram_list[1] for bigram_list in d if not (bigram_list[0] in punctuation)]
-		#d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
+		d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
 		d = [x for x in d if re.match(declined, x) == None]
 
 		docs.append(d)

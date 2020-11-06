@@ -16,7 +16,8 @@ from math import log
 import os
 import sys
 
-path_to_coca = "E:/coca_2019_wlp"
+path_to_coca = "/Users/kylamcconnell/Documents/coca_2019_test"
+#path_to_coca = "E:/coca_2019_wlp"
 
 # Helper functions to allow multiprocessing
 def gscorer(items):
@@ -64,91 +65,62 @@ def llscorer(items):
 	return([bigram, 2*sum(parts)])
 
 def preprocess(filename, queue):
-	# print(filename)
 	with open(filename, "r", errors="replace") as i:
-		try:
-			doc = i.read()
+		doc = i.read()
+		
+		doc = re.sub("_.*", "", doc)
+		doc = re.sub("\t+", "\t", doc)
+		doc = doc.split("\n")
+		doc = [word.split("\t") for word in doc]
 
-			#doc = re.sub("_.*", "", doc)
-			doc = re.sub("\t+", "\t", doc)
-			doc = doc.split("\n")
-			doc = [word.split("\t") for word in doc]
+		docs = []
+		d = []
+		declined = re.compile("@_")
+		for word in doc:
+			if len(word) == 4: #rows of length 3 were those that had been removed for copyright reasons
+				pos = re.sub("_.*", "", word[-1])
+				d.append([word[1].lower(), pos]) #changed from 0 2 to 1 3
 
-			docs = []
-			d = []
-			declined = re.compile("@_")
-			for word in doc:
-				if len(word) == 4: #changed from 3 to 4
-					pos = re.sub("_.*", "", word[3])
-					d.append([word[1], pos]) #changed from 0 2 to 1 3
+		d = ["_".join(w).strip() for w in d]
+		punctuation = [",", ".", "!", "?", ";", ":"]
+		d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
+		d = [x for x in d if re.match(declined, x) == None]
 
-				# elif word[0].startswith("##"):
-				# 	d = ["_".join(w).strip() for w in d]
-				# 	d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x.endswith("_y") or y.endswith("_y"))]
-				# 	d = [x for x in d if re.match(declined, x) == None]
-				# 	docs.append(d)
-				# 	d = []
+		docs.append(d)
 
-				else:
-					print(filename)
+		docs = [item for sublist in docs for item in sublist]
 
+		queue.put(json.dumps(docs))
 
-			d = ["_".join(w).strip() for w in d]
-			punctuation = [",", ".", "!", "?", ";", ":"]
-			d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
-			d = [x for x in d if re.match(declined, x) == None]
-
-			docs.append(d)
-
-			docs = [item for sublist in docs for item in sublist]
-
-			queue.put(json.dumps(docs))
-
-		except:
-			print("Error: " + filename)
 
 def preprocess_wfreq(filename, queue):
 	# print(filename)
 	with open(filename, "r", errors="replace") as i:
-		try:
-			doc = i.read()
+		doc = i.read()
 
-			#doc = re.sub("_", "", doc)
-			doc = re.sub("\t+", "\t", doc)
-			doc = doc.split("\n")
-			doc = [word.split("\t") for word in doc]
+		doc = re.sub("_.*", "", doc)
+		doc = re.sub("_", "", doc)
+		doc = re.sub("\t+", "\t", doc)
+		doc = doc.split("\n")
+		doc = [word.split("\t") for word in doc]
 
-			docs = []
-			d = []
-			declined = re.compile("@_")
-			for word in doc:
-				if len(word) == 4: #changed from 3 to 4
-					pos = re.sub("_.*", "", word[3])
-					d.append([word[1], pos]) #changed from 0 2 to 1 3
+		docs = []
+		d = []
+		declined = re.compile("@_")
+		for word in doc:
+			if len(word) == 4:
+				pos = re.sub("_.*", "", word[-1])
+				d.append([word[1].lower(), pos]) #changed from 0 2 to 1 3
 
-				elif word[0].startswith("##"):
-					d = ["_".join(w).strip() for w in d]
-					d = [x for x in d if not x.endswith("_y")]
-					d = [x for x in d if re.match(declined, x) == None]
-					docs.append(d)
-					d = []
+		d = ["_".join(w).strip() for w in d]
+		d = [x for x in d if not x.endswith("_y")]
+		d = [x for x in d if re.match(declined, x) == None]
 
-				else:
-					pass
+		docs.append(d)
 
-			d = ["_".join(w).strip() for w in d]
-			d = [x for x in d if not x.endswith("_y")]
-			d = [x for x in d if re.match(declined, x) == None]
+		docs = [item for sublist in docs for item in sublist]
 
-			docs.append(d)
-
-			docs = [item for sublist in docs for item in sublist]
-
-			queue.put(json.dumps(docs))
-
-		except:
-			print("Error: " + filename)
-
+		queue.put(json.dumps(docs))
 
 
 def listener(queue, filename):
@@ -169,11 +141,11 @@ if __name__ == "__main__":
 		print("WARNING: This is RAM-intensive operation. It cannot continue if you don't have at least 8 GB of RAM.\nExiting...")
 		sys.exit(0)
 
-	total, used, free = shutil.disk_usage("\\")
-	print("Free drive space: %d/%d GB" % ((free // (2**30)), (total // (2**30))))
-	if (free // (2**30)) < 7:
-		print("WARNING: This is space-intensive operation. It cannot continue if you don't have at least 15 GB of free space on the same drive as the script.\nExiting...")
-		sys.exit(0)
+	# total, used, free = shutil.disk_usage("\\")
+	# print("Free drive space: %d/%d GB" % ((free // (2**30)), (total // (2**30))))
+	# if (free // (2**30)) < 7:
+	# 	print("WARNING: This is space-intensive operation. It cannot continue if you don't have at least 15 GB of free space on the same drive as the script.\nExiting...")
+	# 	sys.exit(0)
 
 	print("Initializing...")
 	files = []
@@ -313,7 +285,9 @@ if __name__ == "__main__":
 	print("Preprocessing finished")
 	print("Counting scores")
 
-	skip = input("Skip?").lower()
+	#skip = input("Skip?").lower()
+
+	skip = "n"
 
 	if skip == "n":
 		print("    Bigram frequency")
