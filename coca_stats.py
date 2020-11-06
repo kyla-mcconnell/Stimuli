@@ -68,7 +68,7 @@ def preprocess(filename, queue):
 	with open(filename, "r", errors="replace") as i:
 		doc = i.read()
 		
-		doc = re.sub("_.*", "", doc)
+		#doc = re.sub("_.*", "", doc)
 		doc = re.sub("\t+", "\t", doc)
 		doc = doc.split("\n")
 		doc = [word.split("\t") for word in doc]
@@ -89,6 +89,7 @@ def preprocess(filename, queue):
 		docs.append(d)
 
 		docs = [item for sublist in docs for item in sublist]
+		#print(docs)
 
 		queue.put(json.dumps(docs))
 
