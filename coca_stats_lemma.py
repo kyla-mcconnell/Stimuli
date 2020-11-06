@@ -66,7 +66,7 @@ def llscorer(items):
 def preprocess(filename, queue):
 	with open(filename, "r", errors="replace") as i:
 		doc = i.read()
-		#doc = re.sub("_", "", doc)
+		doc = re.sub("_", "", doc)
 		doc = re.sub("\t+", "\t", doc)
 		doc = doc.split("\n")
 		doc = [word.split("\t") for word in doc]
@@ -75,9 +75,10 @@ def preprocess(filename, queue):
 		d = []
 		declined = re.compile("@_")
 		for word in doc:
+		
 			if len(word) == 4: #changed from 3 to 4
-				pos = word[3][0]
-				d.append([word[2], pos])  #changed from 1 20 to 2 31
+				pos = word[3][0] #take simplified tag (first letter only)
+				d.append([word[2].lower(), pos])  #changed from 1 20 to 2 31\
 
 				# elif word[0].startswith("##"):
 				# 	d = ["_".join(w).strip() for w in d]
@@ -88,7 +89,7 @@ def preprocess(filename, queue):
 				# 	d = []
 					
 		d = ["_".join(w).strip() for w in d if not w[1].endswith("y")]
-		#punctuation = [",", ".", "!", "?", ";", ":"]
+		punctuation = [",", ".", "!", "?", ";", ":"]
 		#d = [bigram_list[0] + "_" + bigram_list[1] for bigram_list in d if not (bigram_list[0] in punctuation)]
 		d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
 		d = [x for x in d if re.match(declined, x) == None]
@@ -119,7 +120,7 @@ def preprocess_wfreq(filename, queue):
 			for word in doc:
 				if len(word) == 4: #changed from 3 to 4
 					pos = word[3][0]
-					d.append([word[2], pos])
+					d.append([word[2].lower(), pos])
 
 				# elif word[0].startswith("##"):
 				# 	d = ["_".join(w).strip() for w in d]
@@ -357,9 +358,9 @@ if __name__ == "__main__":
 	backup_out.close()
 
 
-	with open("scores/bigrams_lemma.json", "r") as i:
+	with open("bigrams_lemma.json", "r") as i:
 		counter = json.loads(i.read())
-	with open("scores/wfreqs_lemma.json", "r") as i:
+	with open("wfreqs_lemma.json", "r") as i:
 		w_freq = json.loads(i.read())
 
 	w_count = 0
