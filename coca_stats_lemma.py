@@ -16,7 +16,8 @@ from math import log
 import os
 import sys
 
-path_to_coca = "E:/coca_2019_wlp"
+path_to_coca = "/Users/kylamcconnell/Documents/coca_2019_test"
+#path_to_coca = "E:/coca_2019_wlp"
 
 # Helper functions to allow multiprocessing
 def gscorer(items):
@@ -66,6 +67,7 @@ def llscorer(items):
 def preprocess(filename, queue):
 	with open(filename, "r", errors="replace") as i:
 		doc = i.read()
+		doc = re.sub("_.*", "", doc)
 		doc = re.sub("_", "", doc)
 		doc = re.sub("\t+", "\t", doc)
 		doc = doc.split("\n")

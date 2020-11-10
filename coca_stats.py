@@ -68,7 +68,7 @@ def preprocess(filename, queue):
 	with open(filename, "r", errors="replace") as i:
 		doc = i.read()
 		
-		#doc = re.sub("_.*", "", doc)
+		doc = re.sub("_.*", "", doc)
 		doc = re.sub("\t+", "\t", doc)
 		doc = doc.split("\n")
 		doc = [word.split("\t") for word in doc]
