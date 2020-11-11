@@ -68,8 +68,8 @@ def preprocess(filename, queue):
 	with open(filename, "r", errors="replace") as i:
 		doc = i.read()
 		
-		doc = re.sub("_.*", "", doc)
-		doc = re.sub("\t+", "\t", doc)
+		#doc = re.sub("_.*", "", doc)
+		#doc = re.sub("\t+", "\t", doc)
 		doc = doc.split("\n")
 		doc = [word.split("\t") for word in doc]
 
@@ -82,8 +82,7 @@ def preprocess(filename, queue):
 				d.append([word[1].lower(), pos]) #changed from 0 2 to 1 3
 
 		d = ["_".join(w).strip() for w in d]
-		punctuation = [",", ".", "!", "?", ";", ":"]
-		d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if not (x in punctuation) or (y in punctuation)]
+		d = [x + " " + y for x,y in zip(d[0:-1], d[1:]) if re.match("\W", x) == None and re.match("\W", y) == None]
 		d = [x for x in d if re.match(declined, x) == None]
 
 		docs.append(d)
@@ -99,9 +98,9 @@ def preprocess_wfreq(filename, queue):
 	with open(filename, "r", errors="replace") as i:
 		doc = i.read()
 
-		doc = re.sub("_.*", "", doc)
-		doc = re.sub("_", "", doc)
-		doc = re.sub("\t+", "\t", doc)
+		#doc = re.sub("_.*", "", doc)
+		#doc = re.sub("_", "", doc)
+		#doc = re.sub("\t+", "\t", doc)
 		doc = doc.split("\n")
 		doc = [word.split("\t") for word in doc]
 
@@ -114,7 +113,7 @@ def preprocess_wfreq(filename, queue):
 				d.append([word[1].lower(), pos]) #changed from 0 2 to 1 3
 
 		d = ["_".join(w).strip() for w in d]
-		d = [x for x in d if not x.endswith("_y")]
+		d = [x for x in d if re.match("\W", x) == None]
 		d = [x for x in d if re.match(declined, x) == None]
 
 		docs.append(d)
