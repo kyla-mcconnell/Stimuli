@@ -2,7 +2,7 @@ from os import walk
 from bs4 import BeautifulSoup
 import json
 import psutil
-import shutil
+#import shutil
 import pickle
 from decimal import Decimal
 import settings_stats
@@ -16,47 +16,46 @@ from math import log
 import os
 import sys
 
-path_to_coca = "E:/coca_2019_wlp"
+#path_to_coca = "E:/coca_2019_wlp"
+path_to_coca = "/Users/kylamcconnell/Documents/coca_2019_test"
 
 def preprocess(filename, queue):
 	with open(filename, "r", errors="replace") as i:
-		try:
-			doc = i.read()
+		doc = i.read()
 
-			#doc = re.sub("_", "", doc)
-			doc = re.sub("\t+", "\t", doc)
-			doc = doc.split("\n")
-			doc = [word.split("\t") for word in doc]
+		#doc = re.sub("_", "", doc)
+		doc = re.sub("\t+", "\t", doc)
+		doc = doc.split("\n")
+		doc = [word.split("\t") for word in doc]
 
-			docs = []
-			d = []
-			declined = re.compile("@_")
-			for word in doc:
-				if len(word) == 4: #changed from 3 to 4
-					pos = word[3][0]
+		docs = []
+		d = []
+		declined = re.compile("@_")
+		for word in doc:
+			if len(word) == 4: #changed from 3 to 4
+				pos = word[3][0]
+				if re.match("\W", word[1]) == None:
 					d.append([[word[1], word[3]],[word[2], pos]]) #changed from 0 2 1 20 to 1 3 2 pos (defined above)
-				#elif word[1].startswith("##"): #changed from 0 to 1
-					# d = [["_".join(w).strip(),"_".join(l).strip()] for w,l in d]
-					# d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:]) if not (x[0].endswith("_y") or y[0].endswith("_y"))]
-					# d = [[x,y] for x,y in d if re.match(declined, x) == None]
-					# docs.append(d)
-					# d = []
 
-				else:
-					pass
+			#elif word[1].startswith("##"): #changed from 0 to 1
+				# d = [["_".join(w).strip(),"_".join(l).strip()] for w,l in d]
+				# d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:]) if not (x[0].endswith("_y") or y[0].endswith("_y"))]
+				# d = [[x,y] for x,y in d if re.match(declined, x) == None]
+				# docs.append(d)
+				# d = []
 
-			d = [["_".join(w).strip(),"_".join(l).strip()] for w,l in d]
-			punctuation = [",", ".", "!", "?", ";", ":"]
-			d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:]) if not (x[0] in punctuation) or (y[0] in punctuation)]
-			d = [[x,y] for x,y in d if re.match(declined, x) == None]
-			docs.append(d)
+			else:
+				pass
 
-			docs = [item for sublist in docs for item in sublist]
+		d = [["_".join(w).strip().lower(),"_".join(l).strip()] for w,l in d]
+		d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:])] #if re.match("\W", x) == None and re.match("\W", y) == None]
+		d = [[x,y] for x,y in d if re.match(declined, x) == None]
+		docs.append(d)
 
-			queue.put(json.dumps(docs))
+		docs = [item for sublist in docs for item in sublist]
+		print(docs)
 
-		except:
-			print("Error: " + filename)
+	queue.put(json.dumps(docs))
 
 
 def listener(queue, filename):
@@ -77,11 +76,11 @@ if __name__ == "__main__":
 		print("WARNING: This is RAM-intensive operation. It cannot continue if you don't have at least 8 GB of RAM.\nExiting...")
 		sys.exit(0)
 
-	total, used, free = shutil.disk_usage("\\")
-	print("Free drive space: %d/%d GB" % ((free // (2**30)), (total // (2**30))))
-	if (free // (2**30)) < 7:
-		print("WARNING: This is space-intensive operation. It cannot continue if you don't have at least 15 GB of free space on the same drive as the script.\nExiting...")
-		sys.exit(0)
+	#total, used, free = shutil.disk_usage("\\")
+	#print("Free drive space: %d/%d GB" % ((free // (2**30)), (total // (2**30))))
+	#if (free // (2**30)) < 7:
+		#print("WARNING: This is space-intensive operation. It cannot continue if you don't have at least 15 GB of free space on the same drive as the script.\nExiting...")
+		#sys.exit(0)
 
 	print("Initializing...")
 	files = []
@@ -158,7 +157,7 @@ if __name__ == "__main__":
 	print("    Bigram frequency")
 		#- Bigram frequency (bi.freq.NXT)
 
-	with open("scores/bigrams.json", "r") as f:
+	with open("bigrams.json", "r") as f:
 		frequent = json.load(f)
 		frequent = set([x for x in frequent])
 
@@ -166,9 +165,9 @@ if __name__ == "__main__":
 	mapping = {}
 	log = open("conversionlog.txt", "w+")
 
-	for line in tqdm.tqdm(coca, total=115):
+	for line in coca:
 		bgs = json.loads(line)
-		bgs = [[x.strip(), y.strip()] for x,y in bgs if not x.startswith("##")]
+		bgs = [[x.strip(), y.strip()] for x,y in bgs] #if not x.startswith("##")]
 		for string, lemma in bgs:
 			if string in frequent:
 				if string in mapping:
@@ -179,8 +178,8 @@ if __name__ == "__main__":
 				else:
 					mapping[string] = lemma
 			else:
-				pass
-	del bgs
+				print(string)
+		del bgs
 	coca.close()
 
 	import gc
