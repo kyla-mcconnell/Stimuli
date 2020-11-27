@@ -20,42 +20,33 @@ import sys
 path_to_coca = "/Users/kylamcconnell/Documents/coca_2019_test"
 
 def preprocess(filename, queue):
-	with open(filename, "r", errors="replace") as i:
-		doc = i.read()
+   with open(filename, "r", errors="replace") as i:
+        doc = i.read()
 
-		#doc = re.sub("_", "", doc)
-		doc = re.sub("\t+", "\t", doc)
-		doc = doc.split("\n")
-		doc = [word.split("\t") for word in doc]
+        #doc = re.sub("_", "", doc)
+        #doc = re.sub("\t+", "\t", doc)
+        doc = doc.split("\n")
+        doc = [word.split("\t") for word in doc]
 
-		docs = []
-		d = []
-		declined = re.compile("@_")
-		for word in doc:
-			if len(word) == 4: #changed from 3 to 4
-				pos = word[3][0]
-				if re.match("\W", word[1]) == None:
-					d.append([[word[1], word[3]],[word[2], pos]]) #changed from 0 2 1 20 to 1 3 2 pos (defined above)
+        docs = []
+        d = []
+        declined = re.compile("@_")
+        for word in doc:
+            if len(word) == 4: #changed from 3 to 4
+                pos = re.sub("_.*", "", word[3])
+                pos_lemma = pos[0] if len(pos) > 0 else pos
 
-			#elif word[1].startswith("##"): #changed from 0 to 1
-				# d = [["_".join(w).strip(),"_".join(l).strip()] for w,l in d]
-				# d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:]) if not (x[0].endswith("_y") or y[0].endswith("_y"))]
-				# d = [[x,y] for x,y in d if re.match(declined, x) == None]
-				# docs.append(d)
-				# d = []
+                d.append([[word[1].lower(), pos],[word[2].lower(), pos_lemma]]) #changed from 0 2 1 20 to 1 3 2 pos (defined above)
 
-			else:
-				pass
+        d = [["_".join(w).strip(), "_".join(l).strip()] for w,l in d]
+        d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:]) if re.match("\W", x[0]) == None and re.match("\W", y[0]) == None]
+        d = [[x,y] for x,y in d if re.match(declined, x) == None]
 
-		d = [["_".join(w).strip().lower(),"_".join(l).strip()] for w,l in d]
-		d = [[x[0] + " " + y[0], x[1] + " " + y[1]] for x,y in zip(d[0:-1], d[1:])] #if re.match("\W", x) == None and re.match("\W", y) == None]
-		d = [[x,y] for x,y in d if re.match(declined, x) == None]
-		docs.append(d)
+        docs.append(d)
 
-		docs = [item for sublist in docs for item in sublist]
-		print(docs)
+        docs = [item for sublist in docs for item in sublist]
 
-	queue.put(json.dumps(docs))
+        queue.put(json.dumps(docs))
 
 
 def listener(queue, filename):

@@ -19,7 +19,8 @@ import pandas as pd
 import gc
 gc.enable()
 
-file_folder = "E:/Stimuli_zameji/"
+#file_folder = "E:/Stimuli_zameji/"
+file_folder = "/Users/kylamcconnell/Documents/GitHub/Stimuli/"
 
 def getSettings():
 
@@ -283,7 +284,7 @@ class ScorerLemma(object):
 		items_out = []
 
 		for bigram in items:
-			#print("test " +str(bigram))
+			print(self.wfreq)
 
 			w1, w2 = bigram
 			bigram = " ".join(bigram)
